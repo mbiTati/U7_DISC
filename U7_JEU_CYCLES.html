@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7. Le bon cycle pour le bon projet</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>7</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E; --teal-bright: #5EEAD4; --teal-dark: #0D5E57;
+    --navy: #16294D; --border: #E7E9EE; --muted: #64707E;
+    --ink: #12161C; --page: #F1F5F4; --white: #FFF;
+    --success: #2E7D32; --warning: #E65100; --error: #B71C1C;
+    --gold: #B8860B; --violet: #6A1B9A; --blue: #1565C0;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans); font-size: 16px; line-height: 1.65;
+    color: var(--ink); background: var(--page);
+    -webkit-font-smoothing: antialiased; padding: 24px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  /* En-tête */
+  .head { margin-bottom: 28px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 12px;
+  }
+  .head h1 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: clamp(28px, 5vw, 42px); line-height: 1.15; margin-bottom: 12px;
+  }
+  .head p { font-size: 15px; color: var(--muted); max-width: 640px; line-height: 1.65; }
+  .head-meta {
+    display: flex; gap: 24px; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--border); font-family: var(--mono);
+    font-size: 12px; color: var(--muted); flex-wrap: wrap;
+  }
+  .head-meta strong { color: var(--ink); font-weight: 500; }
+
+  /* Identité */
+  .identity {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 20px 22px; margin-bottom: 20px;
+  }
+  .identity h2 { font-family: var(--sans); font-weight: 500; font-size: 15px; margin-bottom: 14px; }
+  .identity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field label {
+    display: block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--sans); font-size: 14px;
+    background: var(--white); color: var(--ink); transition: border-color .2s;
+  }
+  .field input:focus { outline: none; border-color: var(--teal); }
+
+  /* Aide-mémoire */
+  .memo {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px 20px; margin-bottom: 24px;
+  }
+  .memo summary {
+    cursor: pointer; font-family: var(--mono); font-size: 11px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    font-weight: 500; list-style: none; display: flex; align-items: center; gap: 8px;
+  }
+  .memo summary::before {
+    content: '+'; color: var(--teal); font-weight: 700; font-size: 14px;
+  }
+  .memo[open] summary::before { content: '−'; }
+  .memo summary:hover { color: var(--ink); }
+  .memo[open] summary { margin-bottom: 14px; }
+  .memo-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-top: 8px;
+  }
+  .memo-item {
+    padding: 10px 12px; border-left: 3px solid var(--teal);
+    background: #FAFBFC; border-radius: 3px;
+  }
+  .memo-item h5 {
+    font-family: var(--sans); font-weight: 500; font-size: 13px;
+    margin-bottom: 4px; color: var(--ink);
+  }
+  .memo-item p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* Barre de progression */
+  .progress {
+    position: sticky; top: 12px; background: var(--white);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px 16px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 14px; z-index: 50;
+  }
+  .progress-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  .progress-track { flex: 1; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); width: 0%; transition: width .3s; }
+  .progress-count { font-family: var(--mono); font-size: 12px; color: var(--teal); font-weight: 500; }
+
+  /* Phases */
+  .phase-title {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 8px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .phase h2 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 26px; line-height: 1.2; margin-bottom: 10px;
+  }
+  .phase-intro {
+    font-size: 14px; color: var(--muted); line-height: 1.6;
+    max-width: 640px; margin-bottom: 24px;
+  }
+
+  /* Scénarios */
+  .scenario {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 20px 22px; margin-bottom: 14px;
+    transition: border-color .2s;
+  }
+  .scenario.answered { border-left: 4px solid var(--teal); }
+  .scenario.correct { border-left: 4px solid var(--success); background: #F1F8F2; }
+  .scenario.wrong { border-left: 4px solid var(--error); background: #FDF3F3; }
+  .scenario-head {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px;
+  }
+  .scenario-num {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 22px; color: var(--teal); line-height: 1; flex-shrink: 0;
+  }
+  .scenario-title {
+    font-family: var(--sans); font-weight: 500; font-size: 16px;
+    line-height: 1.3; color: var(--ink);
+  }
+  .scenario-desc {
+    font-size: 14px; color: var(--muted); line-height: 1.6;
+    margin-bottom: 16px; padding-left: 34px;
+  }
+  .model-buttons {
+    display: flex; flex-wrap: wrap; gap: 8px; padding-left: 34px;
+  }
+  .model-btn {
+    padding: 8px 14px; background: var(--white);
+    border: 1px solid var(--border); border-radius: 3px;
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    letter-spacing: .02em;
+  }
+  .model-btn:hover:not(:disabled) { border-color: var(--muted); color: var(--ink); }
+  .model-btn.selected { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .model-btn.correct { background: var(--success); color: #fff; border-color: var(--success); }
+  .model-btn.wrong { background: var(--error); color: #fff; border-color: var(--error); }
+  .model-btn:disabled { cursor: default; }
+  .model-btn.selected.correct { background: var(--success); border-color: var(--success); }
+
+  /* Feedback après validation */
+  .feedback {
+    margin-top: 14px; padding: 12px 16px;
+    background: #FAFBFC; border-left: 3px solid var(--teal);
+    border-radius: 3px; font-size: 13px; line-height: 1.6;
+    color: var(--muted); padding-left: 34px; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback strong { color: var(--ink); font-weight: 500; }
+  .feedback .label-correct {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--success); display: block; margin-bottom: 4px;
+  }
+
+  /* Rédaction */
+  .redaction-item {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 18px 20px; margin-bottom: 12px;
+  }
+  .redaction-item h4 {
+    font-family: var(--sans); font-weight: 500; font-size: 14px;
+    margin-bottom: 4px; color: var(--ink);
+  }
+  .redaction-item .redaction-sub {
+    font-family: var(--mono); font-size: 11px; color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .redaction-item .redaction-sub.wrong { color: var(--error); }
+  .free-text {
+    width: 100%; padding: 12px; border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--sans); font-size: 14px;
+    line-height: 1.6; background: var(--white); color: var(--ink);
+    resize: vertical; min-height: 80px; transition: border-color .2s;
+  }
+  .free-text:focus { outline: none; border-color: var(--teal); }
+
+  /* Boutons */
+  .btn {
+    display: inline-block; padding: 12px 24px;
+    border: 1px solid transparent; border-radius: 3px;
+    font-family: var(--sans); font-weight: 500; font-size: 14px;
+    letter-spacing: .02em; cursor: pointer;
+    transition: background .2s, border-color .2s; text-decoration: none;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--border); }
+  .btn-outline:hover { border-color: var(--muted); }
+  .btn-light { background: #fff; color: var(--teal); }
+  .btn-light:hover { background: #E0F2F1; }
+
+  .actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 20px; flex-wrap: wrap;
+  }
+
+  /* Score */
+  .score-banner {
+    background: var(--navy); color: #fff; padding: 24px 28px;
+    border-radius: 4px; margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+  }
+  .score-banner .score-value {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 48px; line-height: 1; color: var(--teal-bright);
+  }
+  .score-banner .score-text {
+    font-size: 14px; color: #C4CFE0; line-height: 1.55; flex: 1; min-width: 200px;
+  }
+  .score-banner .score-text strong { color: #fff; font-weight: 500; }
+
+  /* Envoi */
+  .send-block {
+    background: var(--navy); color: #fff; padding: 24px;
+    border-radius: 4px; margin-top: 24px;
+  }
+  .send-block h3 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 20px; margin-bottom: 10px;
+  }
+  .send-block p { font-size: 13px; color: #C4CFE0; line-height: 1.6; margin-bottom: 16px; }
+  .send-note { font-family: var(--mono); font-size: 11px; color: #8FA2BF; margin-top: 12px; }
+
+  footer {
+    text-align: center; margin-top: 40px; font-family: var(--mono);
+    font-size: 11px; color: var(--muted); letter-spacing: .04em;
+  }
+
+  @media (max-width: 768px) {
+    .identity-grid { grid-template-columns: 1fr; }
+    .scenario-desc, .model-buttons, .feedback { padding-left: 0; }
+    .model-btn { font-size: 11px; padding: 7px 10px; }
+    .score-banner { flex-direction: column; align-items: flex-start; }
+    .actions { justify-content: stretch; }
+    .actions .btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">École Schulz Genève · Unit 7 · Software Development Lifecycles</div>
+    <h1>Le bon cycle pour le bon projet</h1>
+    <p>
+      Huit situations réelles. Cinq cycles de vie. À vous de choisir celui qui
+      convient le mieux, puis de justifier vos choix par écrit.
+    </p>
+    <div class="head-meta">
+      <span><strong>8</strong> scénarios</span>
+      <span><strong>2</strong> phases</span>
+      <span><strong>~30 min</strong> durée moyenne</span>
+    </div>
+  </div>
+
+  <div class="identity">
+    <h2>Avant de commencer</h2>
+    <div class="identity-grid">
+      <div class="field">
+        <label>Nom et prénom</label>
+        <input type="text" id="studentName" placeholder="par exemple : Tatiana B." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Groupe (optionnel)</label>
+        <input type="text" id="studentGroup" placeholder="par exemple : Groupe 1" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <!-- Aide-mémoire -->
+  <details class="memo">
+    <summary>Aide-mémoire — les 5 cycles en une phrase</summary>
+    <div class="memo-grid">
+      <div class="memo-item">
+        <h5>Waterfall</h5>
+        <p>Exigences figées, phases séquentielles, documentation exhaustive.</p>
+      </div>
+      <div class="memo-item">
+        <h5>V-Model</h5>
+        <p>Sécurité critique, à chaque phase de conception correspond un test.</p>
+      </div>
+      <div class="memo-item">
+        <h5>Spirale</h5>
+        <p>Projets risqués, itérations + analyse de risque à chaque tour.</p>
+      </div>
+      <div class="memo-item">
+        <h5>Agile</h5>
+        <p>Exigences changeantes, itérations courtes, feedback continu.</p>
+      </div>
+      <div class="memo-item">
+        <h5>RAD / Prototypage</h5>
+        <p>Design exploratoire, prototypes rapides, validation visuelle.</p>
+      </div>
+    </div>
+  </details>
+
+  <div class="progress">
+    <span class="progress-label">Progression</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 8</span>
+  </div>
+
+  <!-- =============== PHASE 1 : LE JEU =============== -->
+  <section class="phase" id="phaseJeu">
+    <div class="phase-title">Phase 1 · Le jeu</div>
+    <h2>Associez chaque projet à son cycle</h2>
+    <p class="phase-intro">
+      Pour chaque scénario, cliquez sur le cycle de vie qui vous semble le plus
+      adapté. Vous ne saurez si vous avez juste qu'après avoir tout complété.
+    </p>
+
+    <div id="scenariosContainer"></div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="reset()">Réinitialiser</button>
+      <button class="btn btn-primary" id="btnValider" onclick="valider()" disabled>
+        Valider mes choix
+      </button>
+    </div>
+  </section>
+
+  <!-- =============== PHASE 2 : RÉDACTION (cachée) =============== -->
+  <section class="phase" id="phaseRedaction" style="display:none; margin-top:48px;">
+    <div class="phase-title">Phase 2 · La rédaction</div>
+    <h2>Justifiez vos choix</h2>
+    <p class="phase-intro">
+      Vous avez le corrigé ci-dessus. Pour chaque scénario, expliquez en deux ou
+      trois phrases pourquoi ce cycle est le plus adapté. Appuyez-vous sur les
+      indices du scénario (stabilité des besoins, criticité, fréquence des mises
+      à jour, gestion des risques…).
+    </p>
+
+    <div id="redactionsContainer"></div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btnSend" onclick="envoyerResultats()" disabled>
+        Envoyer mes réponses
+      </button>
+    </div>
+
+    <div class="send-block" id="sendBlock" style="display:none;">
+      <h3>Prêt·e à envoyer ?</h3>
+      <p>
+        Cliquez sur le bouton ci-dessous : un client mail s'ouvrira avec vos choix,
+        vos justifications et votre score pré-remplis.
+      </p>
+      <button class="btn btn-light" onclick="envoyerResultats()">Envoyer par email</button>
+      <div class="send-note">Destinataire : t.mbi@ecole-schulz.ch</div>
+    </div>
+  </section>
+
+  <footer>
+    École Schulz Genève · Unit 7 · Le bon cycle pour le bon projet
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================================
+   DONNÉES : les 8 scénarios et leurs cycles corrects
+   ============================================================================ */
+const MODELS = [
+  { id: 'waterfall', label: 'Waterfall' },
+  { id: 'vmodel',    label: 'V-Model' },
+  { id: 'spirale',   label: 'Spirale' },
+  { id: 'agile',     label: 'Agile' },
+  { id: 'rad',       label: 'RAD / Prototypage' }
+];
+
+const SCENARIOS = [
+  {
+    titre: "Site web personnel",
+    desc: "Vous souhaitez créer votre propre site web personnel pour promouvoir votre travail artistique. Les exigences évoluent à mesure que vous explorez différentes idées de design.",
+    correct: 'rad',
+    accepte: ['agile'],
+    explication: "Les exigences évoluent au fil de l'exploration du design. Le prototypage rapide (RAD) permet de montrer quelque chose très tôt et d'itérer sur le visuel. Agile est également défendable, mais ici c'est le design lui-même qui se cherche."
+  },
+  {
+    titre: "Application de médias sociaux",
+    desc: "Vous travaillez sur une application de médias sociaux qui doit être réactive aux tendances changeantes et aux commentaires des utilisateurs. Les spécifications initiales sont sujettes à des modifications fréquentes.",
+    correct: 'agile',
+    accepte: ['scrum'],
+    explication: "Tendances changeantes, retours utilisateurs continus, besoin de livrer souvent. Agile est le cadre conçu pour absorber ce type de changement permanent."
+  },
+  {
+    titre: "Application de gestion de projet — grande entreprise",
+    desc: "Vous développez une application de gestion de projet pour une grande entreprise. La collaboration entre les membres de l'équipe est essentielle, et les besoins des utilisateurs peuvent évoluer au fil du temps.",
+    correct: 'agile',
+    accepte: ['scrum'],
+    explication: "Collaboration forte + besoins qui évoluent. Scrum formalise cette collaboration avec ses rôles (Product Owner, Scrum Master, équipe) et ses sprints. Réponse Agile ou Scrum acceptée."
+  },
+  {
+    titre: "Système de contrôle de trafic aérien",
+    desc: "Vous êtes chargé de développer un système de contrôle de trafic aérien pour un aéroport majeur. La sécurité et la fiabilité sont cruciales. Les spécifications sont claires dès le début, mais la phase de test est complexe et comporte des tests rigoureux à chaque étape du développement.",
+    correct: 'vmodel',
+    accepte: [],
+    explication: "Sécurité critique + spécifications stables + tests rigoureux à chaque étape. Le V-Model associe à chaque phase de conception une phase de test miroir : c'est exactement ce que demande ce projet."
+  },
+  {
+    titre: "Paiement en ligne — e-commerce",
+    desc: "Vous êtes chargé de concevoir un système de paiement en ligne pour un site de commerce électronique de grande envergure. La sécurité et la stabilité sont prioritaires. Les spécifications doivent être clairement définies et planifiées en détail avant la mise en œuvre.",
+    correct: 'waterfall',
+    accepte: [],
+    explication: "Sécurité et stabilité prioritaires, spécifications clairement définies AVANT mise en œuvre. C'est le terrain naturel de Waterfall : documentation exhaustive, séquence stricte des phases, contrat ferme possible."
+  },
+  {
+    titre: "Application de jeu mobile",
+    desc: "Vous travaillez sur une application de jeu mobile qui nécessite des cycles de développement rapides et des mises à jour fréquentes pour maintenir l'intérêt des joueurs.",
+    correct: 'agile',
+    accepte: ['rad'],
+    explication: "Cycles rapides, mises à jour fréquentes. Agile permet des itérations courtes et des livraisons régulières, exactement ce qu'il faut pour maintenir l'engagement des joueurs."
+  },
+  {
+    titre: "Système de gestion de bibliothèque",
+    desc: "Vous développez un système de gestion de bibliothèque qui nécessite une gestion efficace des risques, car les besoins des utilisateurs évoluent au fil du temps.",
+    correct: 'spirale',
+    accepte: [],
+    explication: "Le scénario mentionne explicitement la gestion des risques ET des besoins évolutifs. C'est la définition même du modèle en Spirale : itérations + analyse de risque formelle à chaque tour."
+  },
+  {
+    titre: "Application de suivi des ventes — commerce de détail",
+    desc: "Vous travaillez sur une application de suivi des ventes pour une entreprise de commerce de détail où les besoins des utilisateurs changent fréquemment pour s'adapter aux variations du marché.",
+    correct: 'agile',
+    accepte: [],
+    explication: "Besoins qui changent fréquemment pour suivre le marché. Agile s'adapte en continu par itérations courtes, là où Waterfall s'effondrerait."
+  }
+];
+
+/* ============================================================================
+   ÉTAT
+   ============================================================================ */
+const choix = {};              // { indexScenario: 'agile' | 'waterfall' | ... }
+const redactions = {};         // { indexScenario: 'texte...' }
+let score = null;              // rempli après validation
+let valide = false;
+
+/* ============================================================================
+   RENDU PHASE 1
+   ============================================================================ */
+function renderScenarios() {
+  const container = document.getElementById('scenariosContainer');
+  let html = '';
+
+  SCENARIOS.forEach((s, i) => {
+    html += `
+      <div class="scenario" id="scenario-${i}">
+        <div class="scenario-head">
+          <div class="scenario-num">${i + 1}</div>
+          <div class="scenario-title">${s.titre}</div>
+        </div>
+        <p class="scenario-desc">${s.desc}</p>
+        <div class="model-buttons" data-scenario="${i}">
+          ${MODELS.map(m => `
+            <button class="model-btn" data-model="${m.id}" data-scenario="${i}">
+              ${m.label}
+            </button>
+          `).join('')}
+        </div>
+        <div class="feedback" id="feedback-${i}"></div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  document.querySelectorAll('.model-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (valide) return;
+      const i = parseInt(btn.dataset.scenario);
+      const m = btn.dataset.model;
+      choix[i] = m;
+      document.querySelectorAll(`.model-btn[data-scenario="${i}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('scenario-' + i).classList.add('answered');
+      updateProgress();
+    });
+  });
+}
+
+/* ============================================================================
+   PROGRESSION
+   ============================================================================ */
+function updateProgress() {
+  const done = Object.keys(choix).length;
+  document.getElementById('progressCount').textContent = done + ' / 8';
+  document.getElementById('progressFill').style.width = (done / 8 * 100) + '%';
+  document.getElementById('btnValider').disabled = done !== 8;
+}
+
+/* ============================================================================
+   VALIDATION
+   ============================================================================ */
+function valider() {
+  valide = true;
+  score = 0;
+
+  SCENARIOS.forEach((s, i) => {
+    const choice = choix[i];
+    const good = choice === s.correct || s.accepte.includes(choice);
+    if (good) score++;
+
+    // Marquer les boutons
+    document.querySelectorAll(`.model-btn[data-scenario="${i}"]`).forEach(b => {
+      b.disabled = true;
+      const m = b.dataset.model;
+      if (m === s.correct) b.classList.add('correct');
+      else if (m === choice && !good) b.classList.add('wrong');
+    });
+
+    // Bandeau visuel du scénario
+    const card = document.getElementById('scenario-' + i);
+    card.classList.remove('answered');
+    card.classList.add(good ? 'correct' : 'wrong');
+
+    // Feedback
+    const correctLabel = MODELS.find(m => m.id === s.correct).label;
+    const chosenLabel = MODELS.find(m => m.id === choice).label;
+    const fb = document.getElementById('feedback-' + i);
+    fb.innerHTML = `
+      <span class="label-correct">Correction</span>
+      <strong>${correctLabel}</strong>${s.accepte.length ? ' (ou ' + s.accepte.map(a => MODELS.find(m => m.id === a).label).join(', ') + ')' : ''} — votre choix : <em>${chosenLabel}</em> ${good ? '✓' : '✗'}<br>
+      ${s.explication}
+    `;
+    fb.classList.add('show');
+  });
+
+  document.getElementById('btnValider').disabled = true;
+  document.getElementById('btnValider').textContent = 'Corrigé';
+  document.getElementById('phaseRedaction').style.display = 'block';
+  renderRedactions();
+  document.getElementById('phaseRedaction').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ============================================================================
+   RENDU PHASE 2 : rédaction
+   ============================================================================ */
+function renderRedactions() {
+  const container = document.getElementById('redactionsContainer');
+
+  // Bandeau score
+  let html = `
+    <div class="score-banner">
+      <div class="score-value">${score}/8</div>
+      <div class="score-text">
+        <strong>Score du jeu</strong><br>
+        Votre rôle maintenant : justifier par écrit chacun de ces huit choix.
+        Relisez l'explication si besoin, puis rédigez votre propre argumentation.
+      </div>
+    </div>
+  `;
+
+  SCENARIOS.forEach((s, i) => {
+    const choice = choix[i];
+    const good = choice === s.correct || s.accepte.includes(choice);
+    const correctLabel = MODELS.find(m => m.id === s.correct).label;
+
+    html += `
+      <div class="redaction-item">
+        <h4>${i + 1}. ${s.titre}</h4>
+        <div class="redaction-sub ${good ? '' : 'wrong'}">
+          Cycle attendu : ${correctLabel} · Votre réponse : ${MODELS.find(m => m.id === choice).label}
+        </div>
+        <textarea class="free-text" data-index="${i}"
+          placeholder="Justifiez en 2 à 3 phrases : quels indices du scénario orientent vers ce cycle ?"
+          oninput="onRedaction(${i}, this.value)">${redactions[i] || ''}</textarea>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  updateSendButton();
+}
+
+function onRedaction(i, val) {
+  redactions[i] = val;
+  updateSendButton();
+}
+
+function updateSendButton() {
+  const allDone = SCENARIOS.every((_, i) => (redactions[i] || '').trim().length >= 30);
+  const btn = document.getElementById('btnSend');
+  if (btn) btn.disabled = !allDone;
+  const bloc = document.getElementById('sendBlock');
+  if (bloc) bloc.style.display = allDone ? 'block' : 'none';
+}
+
+/* ============================================================================
+   RESET
+   ============================================================================ */
+function reset() {
+  Object.keys(choix).forEach(k => delete choix[k]);
+  Object.keys(redactions).forEach(k => delete redactions[k]);
+  score = null;
+  valide = false;
+
+  document.getElementById('phaseRedaction').style.display = 'none';
+  document.getElementById('sendBlock').style.display = 'none';
+
+  renderScenarios();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================================
+   ENVOI PAR EMAIL
+   ============================================================================ */
+function envoyerResultats() {
+  const nom = document.getElementById('studentName').value.trim();
+  const groupe = document.getElementById('studentGroup').value.trim();
+
+  if (!nom) {
+    alert('Renseignez votre nom avant d\'envoyer.');
+    document.getElementById('studentName').focus();
+    return;
+  }
+
+  const lignes = [];
+  lignes.push('LE BON CYCLE POUR LE BON PROJET');
+  lignes.push('École Schulz Genève · Unit 7 · Software Development Lifecycles');
+  lignes.push('');
+  lignes.push('Nom : ' + nom);
+  if (groupe) lignes.push('Groupe : ' + groupe);
+  lignes.push('Date : ' + new Date().toLocaleString('fr-FR'));
+  lignes.push('');
+  lignes.push('SCORE DU JEU : ' + score + '/8 (' + Math.round(score / 8 * 100) + '%)');
+  lignes.push('');
+  lignes.push('═══════════════════════════════════════════');
+  lignes.push('DÉTAIL DES 8 SCÉNARIOS');
+  lignes.push('═══════════════════════════════════════════');
+
+  SCENARIOS.forEach((s, i) => {
+    const choice = choix[i];
+    const good = choice === s.correct || s.accepte.includes(choice);
+    const correctLabel = MODELS.find(m => m.id === s.correct).label;
+    const chosenLabel = MODELS.find(m => m.id === choice).label;
+
+    lignes.push('');
+    lignes.push('── Scénario ' + (i + 1) + ' · ' + s.titre);
+    lignes.push('Cycle attendu  : ' + correctLabel + (s.accepte.length ? ' (ou ' + s.accepte.map(a => MODELS.find(m => m.id === a).label).join(', ') + ')' : ''));
+    lignes.push('Réponse donnée : ' + chosenLabel + '  ' + (good ? '[✓]' : '[✗]'));
+    lignes.push('');
+    lignes.push('Justification :');
+    lignes.push((redactions[i] || '(non répondu)').trim());
+  });
+
+  const sujet = '[JEU-CYCLES] ' + nom + ' · ' + score + '/8';
+  const corps = encodeURIComponent(lignes.join('\n'));
+  window.location.href = 'mailto:t.mbi@ecole-schulz.ch?subject=' +
+    encodeURIComponent(sujet) + '&body=' + corps;
+}
+
+/* ============================================================================
+   INITIALISATION
+   ============================================================================ */
+renderScenarios();
+updateProgress();
+</script>
+
+</body>
+</html>
