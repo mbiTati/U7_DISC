@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7 — Slides S1 et S2</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E;
+    --teal-bright: #5EEAD4;
+    --navy: #16294D;
+    --border: #E7E9EE;
+    --muted: #64707E;
+    --ink: #12161C;
+    --white: #FFF;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--sans);
+    background: #0A0918;
+  }
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    color: var(--ink);
+    padding: 60px 80px;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; }
+  .slide.lead {
+    background: var(--navy);
+    color: var(--white);
+    justify-content: center;
+  }
+  .slide.lead h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .slide.lead h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: clamp(20px, 3vw, 32px);
+    color: var(--teal-bright);
+    margin-bottom: 40px;
+  }
+  .slide.lead .meta {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: #8FA2BF;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,.15);
+    line-height: 1.8;
+  }
+  .slide.lead .meta strong { color: var(--white); }
+
+  h1.slide-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(30px, 4vw, 46px);
+    color: var(--teal);
+    margin-bottom: 28px;
+    line-height: 1.15;
+  }
+  h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    color: var(--navy);
+    font-size: clamp(20px, 2.5vw, 26px);
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 500;
+    color: var(--teal);
+    font-size: clamp(16px, 1.8vw, 20px);
+    margin-bottom: 10px;
+  }
+  p, li {
+    font-size: clamp(15px, 1.6vw, 19px);
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  ul, ol { margin-left: 24px; margin-bottom: 16px; }
+  li { margin-bottom: 8px; }
+  strong { color: var(--teal); font-weight: 700; }
+  em { font-style: italic; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: clamp(13px, 1.4vw, 16px);
+  }
+  th {
+    background: var(--navy);
+    color: var(--white);
+    padding: 12px;
+    text-align: left;
+    font-weight: 500;
+  }
+  td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #FAFBFC; }
+
+  blockquote {
+    border-left: 4px solid var(--teal);
+    padding: 12px 20px;
+    color: var(--muted);
+    font-style: italic;
+    background: #FAFBFC;
+    margin: 16px 0;
+    font-size: clamp(15px, 1.6vw, 19px);
+  }
+  code {
+    font-family: var(--mono);
+    background: #F1F5F4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  .two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .box {
+    background: #F1F5F4;
+    border-left: 4px solid var(--teal);
+    padding: 16px 22px;
+    border-radius: 4px;
+    margin: 12px 0;
+  }
+  .box strong { display: block; margin-bottom: 4px; }
+
+  /* Navigation */
+  .nav-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(22,41,77,.92);
+    padding: 8px 16px;
+    border-radius: 999px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 100;
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .05em;
+    backdrop-filter: blur(10px);
+  }
+  .nav-bar button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.25);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: all .2s;
+  }
+  .nav-bar button:hover {
+    background: var(--teal);
+    border-color: var(--teal);
+  }
+  .nav-bar .counter {
+    color: var(--teal-bright);
+    min-width: 60px;
+    text-align: center;
+  }
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--teal);
+    transition: width .3s;
+    z-index: 200;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1 -->
+  <div class="slide lead">
+    <h1>Unit 7</h1>
+    <h2>Software Development Lifecycles</h2>
+    <div class="meta">
+      <strong>Séance 1 · Panorama des cycles de vie</strong><br>
+      École Schulz Genève · BI1 · Semestre 1 · 2026-2027<br>
+      Enseignante : MBI Tatiana
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide">
+    <h1 class="slide-title">Pourquoi cette unité ?</h1>
+    <p>Le cycle de vie logiciel est un processus structuré qui guide la création, la conception, le développement, la maintenance et la mise à jour d'un logiciel.</p>
+    <h2>Objectif de l'unité</h2>
+    <p>Comprendre les cycles de vie logiciels pour être capable de :</p>
+    <ul>
+      <li>Choisir une méthodologie adaptée à un contexte</li>
+      <li>Conduire un projet logiciel de bout en bout</li>
+      <li>Justifier ses décisions techniques</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide">
+    <h1 class="slide-title">Les 4 Learning Outcomes</h1>
+    <table>
+      <tr><th>LO</th><th>Intitulé</th><th>Concrètement</th></tr>
+      <tr><td><strong>LO1</strong></td><td>Describe different software development lifecycles</td><td>Décrire et comparer les modèles</td></tr>
+      <tr><td><strong>LO2</strong></td><td>Explain the importance of a feasibility study</td><td>Mesurer la viabilité d'un projet</td></tr>
+      <tr><td><strong>LO3</strong></td><td>Undertake a software development lifecycle</td><td>Conduire un projet documentaire</td></tr>
+      <tr><td><strong>LO4</strong></td><td>Discuss the suitability of software behavioural design techniques</td><td>Choisir une technique de conception</td></tr>
+    </table>
+    <p>Ces 4 LO ne sont pas séparés. C'est une progression.</p>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide">
+    <h1 class="slide-title">Comment on va travailler</h1>
+    <p>Chaque séance suit la même dramaturgie en trois temps.</p>
+    <div class="box"><strong>1. Rechercher / Comprendre</strong>Synthèse individuelle ou en équipe sur le concept du jour</div>
+    <div class="box"><strong>2. Vivre / Pratiquer</strong>Atelier immersif : jeu de rôle, Kahoot, brainstorming, mise en situation</div>
+    <div class="box"><strong>3. Restituer</strong>Débrief collectif, feedback et consolidation des acquis</div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide">
+    <h1 class="slide-title">Ce qu'on fait aujourd'hui</h1>
+    <ul>
+      <li>Comprendre ce qu'est un cycle de vie logiciel</li>
+      <li>Découvrir les deux grandes familles : prédictifs et adaptatifs</li>
+      <li>Explorer trois modèles prédictifs : Waterfall, Prototyping, RAD</li>
+      <li>Préparer l'atelier de la séance 2</li>
+    </ul>
+    <h2>À la fin de la séance</h2>
+    <ul>
+      <li>Définir un cycle de vie logiciel</li>
+      <li>Citer les principales familles de modèles</li>
+      <li>Expliquer les avantages et inconvénients de Waterfall, Prototyping et RAD</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide">
+    <h1 class="slide-title">Définition</h1>
+    <p>Le cycle de vie logiciel (Software Development Life Cycle, SDLC) est un processus systématique et structuré qui régit :</p>
+    <ul>
+      <li>la création</li>
+      <li>la conception</li>
+      <li>le développement</li>
+      <li>la maintenance</li>
+      <li>la mise à jour</li>
+    </ul>
+    <p>d'un logiciel, depuis sa conception initiale jusqu'à sa retraite.</p>
+    <p><strong>Un cadre qui guide les étapes et les activités.</strong></p>
+  </div>
+
+  <!-- SLIDE 7 -->
+  <div class="slide">
+    <h1 class="slide-title">Les phases basiques</h1>
+    <ol>
+      <li>Planification et analyse</li>
+      <li>Conception</li>
+      <li>Développement</li>
+      <li>Tests et intégration</li>
+      <li>Déploiement</li>
+      <li>Maintenance</li>
+    </ol>
+    <p>Toutes ces phases existent dans presque tous les modèles. Ce qui change, c'est <strong>comment on les enchaîne</strong>.</p>
+  </div>
+
+  <!-- SLIDE 8 -->
+  <div class="slide">
+    <h1 class="slide-title">À quoi ça sert ?</h1>
+    <ul>
+      <li>Contrôle de gestion pour le projet</li>
+      <li>Amélioration de la qualité des logiciels</li>
+      <li>Planification rigoureuse et réduction des délais</li>
+      <li>Application de haute qualité qui répond aux besoins</li>
+      <li>Méthodologie rentable</li>
+      <li>Optimisation de la productivité et de la communication</li>
+      <li>Sécurité renforcée</li>
+      <li>Planification de l'évolution</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 9 -->
+  <div class="slide">
+    <h1 class="slide-title">Prédictif ou adaptatif ?</h1>
+    <div class="two-cols">
+      <div>
+        <h3>Modèles prédictifs</h3>
+        <ul>
+          <li>Waterfall</li>
+          <li>Prototyping</li>
+          <li>RAD</li>
+          <li>V-Model</li>
+        </ul>
+        <p>Approche <strong>séquentielle</strong>. Toutes les phases sont planifiées à l'avance. Le changement coûte cher.</p>
+      </div>
+      <div>
+        <h3>Modèles adaptatifs</h3>
+        <ul>
+          <li>Agile</li>
+          <li>Scrum</li>
+          <li>Kanban</li>
+          <li>Spirale</li>
+          <li>DSDM</li>
+          <li>Lean</li>
+        </ul>
+        <p>Approche <strong>itérative</strong>. Les phases se répètent. Le changement est intégré.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10 -->
+  <div class="slide">
+    <h1 class="slide-title">Les quatre catégories</h1>
+    <ol>
+      <li><strong>Modèle prédictif</strong> — Waterfall, Prototyping, RAD</li>
+      <li><strong>Modèle itératif / incrémental</strong> — chaque version enrichit la précédente</li>
+      <li><strong>Modèle séquentiel</strong> — une phase après l'autre, sans retour</li>
+      <li><strong>Modèle adaptatif</strong> — Agile, Spirale, DSDM</li>
+    </ol>
+    <p>Ces catégories se recoupent. Waterfall est à la fois prédictif et séquentiel.</p>
+  </div>
+
+  <!-- SLIDE 11 -->
+  <div class="slide">
+    <h1 class="slide-title">À vous de jouer</h1>
+    <p>Dans cinq minutes, vous devenez les experts d'un modèle.</p>
+    <h2>Votre mission</h2>
+    <ul>
+      <li>Chaque groupe reçoit un modèle</li>
+      <li>Vous préparez une synthèse de 10 minutes</li>
+      <li>Vous l'enseignez au reste de la classe</li>
+    </ul>
+    <h2>Modèles distribués</h2>
+    <ul>
+      <li>Groupe 1 : Waterfall</li>
+      <li>Groupe 2 : Prototyping</li>
+      <li>Groupe 3 : RAD</li>
+      <li>Groupe 4 : Spirale</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 12 -->
+  <div class="slide">
+    <h1 class="slide-title">Consignes de l'atelier</h1>
+    <h2>Format</h2>
+    <p>Enseignement par les pairs. 10 minutes par groupe.</p>
+    <h2>Matériel</h2>
+    <p>Fiche exemple (1 page) + fiche de synthèse (1 page)</p>
+    <h2>Rubriques à remplir</h2>
+    <ul>
+      <li>Nom du modèle</li>
+      <li>Origine et contexte d'apparition</li>
+      <li>Étapes clés du cycle (4 à 6 étapes)</li>
+      <li>Cas d'usage réel</li>
+      <li>Avantages (2)</li>
+      <li>Inconvénients (2)</li>
+      <li>Quand l'utiliser ? (1 phrase)</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 13 -->
+  <div class="slide">
+    <h1 class="slide-title">Waterfall</h1>
+    <p>Modèle linéaire. Une étape ne commence pas avant que la précédente soit terminée.</p>
+    <h2>Les 6 phases</h2>
+    <ol>
+      <li>Collecte et analyse des exigences</li>
+      <li>Conception</li>
+      <li>Mise en œuvre</li>
+      <li>Tests</li>
+      <li>Déploiement</li>
+      <li>Maintenance</li>
+    </ol>
+    <p><strong>Avantages</strong> : structure claire, documentation, idéal petits projets stables</p>
+    <p><strong>Inconvénients</strong> : manque de flexibilité, détection tardive des erreurs</p>
+    <p><strong>Quand</strong> : projets à exigences stables et bien définies</p>
+  </div>
+
+  <!-- SLIDE 14 -->
+  <div class="slide">
+    <h1 class="slide-title">Prototyping</h1>
+    <p>Maquette cliquable testée avec de vrais utilisateurs avant d'écrire le code définitif.</p>
+    <h2>Les 6 phases</h2>
+    <ol>
+      <li>Recueil des besoins</li>
+      <li>Conception rapide</li>
+      <li>Création du prototype</li>
+      <li>Évaluation utilisateurs</li>
+      <li>Affiner le prototype</li>
+      <li>Implémentation et maintenance</li>
+    </ol>
+    <p><strong>Avantages</strong> : feedback rapide, bon pour exigences changeantes</p>
+    <p><strong>Inconvénients</strong> : estimation difficile, dépend du client</p>
+    <p><strong>Quand</strong> : interfaces, apps mobiles, sites e-commerce</p>
+  </div>
+
+  <!-- SLIDE 15 -->
+  <div class="slide">
+    <h1 class="slide-title">Rapid Application Development</h1>
+    <p>Utilisateurs métier impliqués en continu pour valider chaque brique.</p>
+    <h2>Les 5 phases</h2>
+    <ol>
+      <li>Modélisation métier</li>
+      <li>Modélisation des données</li>
+      <li>Modélisation des processus</li>
+      <li>Implémentation</li>
+      <li>Test et livraison</li>
+    </ol>
+    <p><strong>Avantages</strong> : flexibilité, rapidité, réutilisabilité</p>
+    <p><strong>Inconvénients</strong> : nécessite des experts, implication forte</p>
+    <p><strong>Quand</strong> : projets courts, composants réutilisables</p>
+  </div>
+
+  <!-- SLIDE 16 -->
+  <div class="slide">
+    <h1 class="slide-title">Spirale (aperçu)</h1>
+    <p>Combine l'approche itérative avec des processus séquentiels. Chaque tour identifie un risque et construit un prototype pour le lever.</p>
+    <h2>Les 4 phases par tour</h2>
+    <ol>
+      <li>Détermination des objectifs</li>
+      <li>Analyse des risques</li>
+      <li>Développement de la prochaine version</li>
+      <li>Examen et planification</li>
+    </ol>
+    <p><strong>Avantages</strong> : gestion des risques, flexibilité</p>
+    <p><strong>Inconvénients</strong> : complexe, cher, gourmand en ressources</p>
+    <p><strong>Quand</strong> : grands projets à risque technique élevé</p>
+  </div>
+
+  <!-- SLIDE 17 -->
+  <div class="slide">
+    <h1 class="slide-title">Comparatif rapide</h1>
+    <table>
+      <tr><th>Modèle</th><th>Famille</th><th>Force principale</th><th>Limite principale</th><th>Idéal pour</th></tr>
+      <tr><td>Waterfall</td><td>Prédictif</td><td>Structure et documentation</td><td>Rigidité</td><td>Projets stables</td></tr>
+      <tr><td>Prototyping</td><td>Prédictif</td><td>Feedback utilisateur rapide</td><td>Estimation difficile</td><td>Interfaces</td></tr>
+      <tr><td>RAD</td><td>Prédictif</td><td>Rapidité et flexibilité</td><td>Nécessite des experts</td><td>Outils internes</td></tr>
+      <tr><td>Spirale</td><td>Adaptatif</td><td>Gestion des risques</td><td>Complexité et coût</td><td>Grands projets critiques</td></tr>
+    </table>
+  </div>
+
+  <!-- SLIDE 18 -->
+  <div class="slide">
+    <h1 class="slide-title">Auto-évaluation</h1>
+    <h2>Pouvez-vous répondre à ces quatre questions ?</h2>
+    <ol>
+      <li>Puis-je définir un cycle de vie logiciel en une phrase ?</li>
+      <li>Puis-je citer les deux grandes familles de modèles ?</li>
+      <li>Puis-je nommer trois modèles prédictifs et un avantage de chacun ?</li>
+      <li>Puis-je expliquer pourquoi Waterfall ne convient pas à un projet à exigences changeantes ?</li>
+    </ol>
+    <p>Si oui aux quatre, vous êtes prêt pour la séance 2.</p>
+  </div>
+
+  <!-- SLIDE 19 -->
+  <div class="slide">
+    <h1 class="slide-title">La prochaine fois</h1>
+    <h2>Atelier immersif « Bataille des méthodologies »</h2>
+    <ul>
+      <li>Trois groupes défendent un même brief selon trois scripts imposés</li>
+      <li>Un changement client sera glissé en cours de route</li>
+      <li>Vous verrez en direct l'impact du choix du modèle</li>
+      <li>Quiz comparatif en fin de séance</li>
+    </ul>
+    <h3>Brief qui sera distribué</h3>
+    <p>SportConnect : application de mise en relation sportive pour un club de 200 membres.</p>
+  </div>
+
+  <!-- SLIDE 20 -->
+  <div class="slide lead">
+    <h1>Fin de la séance 1</h1>
+    <div class="meta">
+      <strong>Pour la prochaine séance</strong><br>
+      Relire vos notes<br>
+      Préparer une question<br>
+      Venir avec l'énergie
+    </div>
+  </div>
+
+  <!-- SÉANCE 2 -->
+  <div class="slide lead">
+    <h1>Unit 7</h1>
+    <h2>Software Development Lifecycles</h2>
+    <div class="meta">
+      <strong>Séance 2 · Étapes, tests et atelier immersif</strong><br>
+      École Schulz Genève · BI1 · Semestre 1 · 2026-2027<br>
+      Enseignante : MBI Tatiana
+    </div>
+  </div>
+
+  <!-- SLIDE 22 -->
+  <div class="slide">
+    <h1 class="slide-title">Ce qu'on a vu la dernière fois</h1>
+    <ul>
+      <li>Le cycle de vie logiciel : définition et utilité</li>
+      <li>Les deux grandes familles : prédictifs et adaptatifs</li>
+      <li>Trois modèles prédictifs : Waterfall, Prototyping, RAD</li>
+      <li>Aperçu du modèle Spirale</li>
+    </ul>
+    <h2>Question à la classe</h2>
+    <p>Quelqu'un peut-il citer un avantage et un inconvénient de Waterfall ?</p>
+  </div>
+
+  <!-- SLIDE 23 -->
+  <div class="slide">
+    <h1 class="slide-title">Enchaînement des phases</h1>
+    <ul>
+      <li>Planification et analyse des besoins</li>
+      <li>Conception du système</li>
+      <li>Conception architecturale</li>
+      <li>Conception des modules</li>
+      <li>Codage</li>
+      <li>Tests unitaires</li>
+      <li>Tests d'intégration</li>
+      <li>Tests du système</li>
+      <li>Tests d'acceptation</li>
+    </ul>
+    <p>Toutes ces phases existent dans tous les modèles. Ce qui change, c'est <strong>combien de fois on les répète</strong>.</p>
+  </div>
+
+  <!-- SLIDE 24 -->
+  <div class="slide">
+    <h1 class="slide-title">Le modèle V</h1>
+    <p>Chaque phase de développement correspond à un niveau de test.</p>
+    <table>
+      <tr><th>Côté développement</th><th>Côté test</th></tr>
+      <tr><td>Analyse des besoins</td><td>Tests d'acceptation</td></tr>
+      <tr><td>Conception du système</td><td>Tests du système</td></tr>
+      <tr><td>Conception architecturale</td><td>Tests d'intégration</td></tr>
+      <tr><td>Conception des modules</td><td>Tests unitaires</td></tr>
+      <tr><td><strong>Codage</strong> (point bas)</td><td></td></tr>
+    </table>
+  </div>
+
+  <!-- SLIDE 25 -->
+  <div class="slide">
+    <h1 class="slide-title">Les quatre niveaux de test</h1>
+    <div class="box"><strong>Test unitaire</strong>Vérifie une seule fonction. Réalisé par le développeur.</div>
+    <div class="box"><strong>Test d'intégration</strong>Vérifie que plusieurs modules fonctionnent ensemble.</div>
+    <div class="box"><strong>Test système</strong>Vérifie le système entier dans son environnement.</div>
+    <div class="box"><strong>Test d'acceptation</strong>Vérifie que le système répond aux besoins du client.</div>
+  </div>
+
+  <!-- SLIDE 26 -->
+  <div class="slide">
+    <h1 class="slide-title">Bataille des méthodologies</h1>
+    <p>Trois groupes. Un même brief. Trois scripts imposés.</p>
+    <h2>Brief : SportConnect</h2>
+    <p>Un club de sport multisports de 200 membres à Genève veut une application pour que ses membres trouvent des partenaires d'entraînement compatibles. Budget limité. Délai : 3 mois. Données personnelles à protéger.</p>
+    <h2>Scripts imposés</h2>
+    <ul>
+      <li>Groupe A : Waterfall rigide</li>
+      <li>Groupe B : Agile en sprints</li>
+      <li>Groupe C : Spirale par risques</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 27 -->
+  <div class="slide">
+    <h1 class="slide-title">Votre mission</h1>
+    <h3>Groupe A — Script Waterfall</h3>
+    <ul>
+      <li>Chaque étape doit être terminée et validée par écrit avant la suivante</li>
+      <li>Un validateur tournant signe chaque étape</li>
+      <li>Interdit : revenir en arrière</li>
+    </ul>
+    <h3>Groupe B — Script Agile</h3>
+    <ul>
+      <li>Sprints de 20 minutes</li>
+      <li>Mini daily standup de 2 minutes entre chaque sprint</li>
+      <li>Le backlog est réajusté à chaque sprint</li>
+      <li>Interdit : planifier plus d'un sprint à l'avance</li>
+    </ul>
+    <h3>Groupe C — Script Spirale</h3>
+    <ul>
+      <li>Chaque tour commence par l'identification d'un risque</li>
+      <li>Prototype minimal ciblé sur ce risque</li>
+      <li>Décision collective en fin de tour</li>
+      <li>Interdit : travailler sans avoir formulé de risque</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 28 -->
+  <div class="slide">
+    <h1 class="slide-title">Message du client</h1>
+    <blockquote>
+      « Je viens d'apprendre qu'un club concurrent lance une fonctionnalité de messagerie instantanée entre membres. Je veux la même chose sur SportConnect, et si possible avant la fin du projet. C'est important pour moi, sinon nos membres vont utiliser l'app du concurrent. »
+    </blockquote>
+    <h2>Réactions attendues</h2>
+    <ul>
+      <li><strong>Groupe A (Waterfall)</strong> : ne peut pas intégrer la demande sans revalider une étape figée</li>
+      <li><strong>Groupe B (Agile)</strong> : peut ajouter l'item au backlog dès le sprint suivant</li>
+      <li><strong>Groupe C (Spirale)</strong> : doit traiter la demande comme un nouveau risque</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 29 -->
+  <div class="slide">
+    <h1 class="slide-title">Ce que vous avez vécu</h1>
+    <h3>Groupe A (Waterfall)</h3>
+    <p>Qu'est-ce que ça fait de ne pas pouvoir intégrer un changement ?</p>
+    <h3>Groupe B (Agile)</h3>
+    <p>Comment avez-vous géré la demande du client ?</p>
+    <h3>Groupe C (Spirale)</h3>
+    <p>Comment avez-vous traité le changement comme un risque ?</p>
+    <h3>Question à la classe</h3>
+    <p>Pourquoi n'y a-t-il pas de bonne réponse absolue ?</p>
+  </div>
+
+  <!-- SLIDE 30 -->
+  <div class="slide">
+    <h1 class="slide-title">Quiz express</h1>
+    <p><strong>1. Quel modèle est dit prédictif ?</strong></p>
+    <p>a) Agile · b) Waterfall · c) Scrum · d) Kanban</p>
+    <p><strong>2. Dans un modèle Agile, les livraisons se font :</strong></p>
+    <p>a) À la fin · b) Par itérations courtes · c) Quand le client le demande · d) À la fin de l'analyse</p>
+    <p><strong>3. Le modèle Waterfall convient :</strong></p>
+    <p>a) Aux exigences changeantes · b) Aux exigences stables · c) Aux startups · d) Aux projets sans documentation</p>
+    <p><strong>4. Dans Scrum, le rôle qui priorise le backlog :</strong></p>
+    <p>a) Scrum Master · b) Product Owner · c) Équipe · d) Client</p>
+    <p><strong>5. Le modèle Spirale se distingue par :</strong></p>
+    <p>a) Sa rapidité · b) Sa gestion des risques · c) Son absence de documentation · d) Sa simplicité</p>
+  </div>
+
+  <!-- SLIDE 31 -->
+  <div class="slide">
+    <h1 class="slide-title">Corrigé du quiz</h1>
+    <p><strong>1.</strong> b — Waterfall</p>
+    <p><strong>2.</strong> b — Par itérations courtes</p>
+    <p><strong>3.</strong> b — Aux exigences stables</p>
+    <p><strong>4.</strong> b — Product Owner</p>
+    <p><strong>5.</strong> b — Sa gestion des risques</p>
+  </div>
+
+  <!-- SLIDE 32 -->
+  <div class="slide">
+    <h1 class="slide-title">Ce qu'on retient</h1>
+    <ul>
+      <li>Un cycle de vie logiciel structure le développement</li>
+      <li>Les phases sont les mêmes partout, mais leur enchaînement change</li>
+      <li>Waterfall est rigide mais clair</li>
+      <li>Agile est flexible mais exige un client impliqué</li>
+      <li>Spirale gère les risques mais coûte cher</li>
+      <li>Le bon modèle dépend du contexte</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 33 -->
+  <div class="slide">
+    <h1 class="slide-title">La prochaine fois</h1>
+    <h2>Séance 3 · Rôles et responsabilités dans un projet logiciel</h2>
+    <ul>
+      <li>Jeu de rôle « Répartition des rôles projet »</li>
+      <li>Chaque étudiant incarne un rôle : chef de projet, analyste, développeur, testeur, DevOps</li>
+      <li>Identification d'un conflit réaliste entre deux rôles</li>
+      <li>Préparation à la discussion orale (Mode 3 — LO1)</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 34 -->
+  <div class="slide lead">
+    <h1>Fin de la séance 2</h1>
+    <div class="meta">
+      <strong>Pour la prochaine séance</strong><br>
+      Relire vos notes<br>
+      Réfléchir à un rôle<br>
+      Venir avec l'énergie
+    </div>
+  </div>
+
+</div>
+
+<div class="nav-bar">
+  <button onclick="prev()">←</button>
+  <span class="counter" id="counter">1 / 34</span>
+  <button onclick="next()">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  function show(index) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[index].classList.add('active');
+    document.getElementById('counter').textContent = (index + 1) + ' / ' + slides.length;
+    document.getElementById('progress').style.width = ((index + 1) / slides.length * 100) + '%';
+  }
+
+  function next() {
+    if (current < slides.length - 1) {
+      current++;
+      show(current);
+    }
+  }
+
+  function prev() {
+    if (current > 0) {
+      current--;
+      show(current);
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') next();
+    if (e.key === 'ArrowLeft') prev();
+  });
+
+  show(0);
+</script>
+
+</body>
+</html>
