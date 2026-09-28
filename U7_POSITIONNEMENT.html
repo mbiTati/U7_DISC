@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7. Test de positionnement</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>7</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E;
+    --teal-bright: #5EEAD4;
+    --teal-dark: #0D5E57;
+    --navy: #16294D;
+    --border: #E7E9EE;
+    --muted: #64707E;
+    --ink: #12161C;
+    --page: #F1F5F4;
+    --white: #FFF;
+    --success: #2E7D32;
+    --warning: #E65100;
+    --error: #B71C1C;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--page);
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  /* En-tête */
+  .head { margin-bottom: 28px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .head h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(28px, 5vw, 40px);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .head p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.65;
+  }
+  .head-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .head-meta strong { color: var(--ink); font-weight: 500; }
+
+  /* Bloc identité */
+  .identity {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .identity h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 14px;
+    background: var(--white);
+    color: var(--ink);
+    transition: border-color .2s;
+  }
+  .field input:focus { outline: none; border-color: var(--teal); }
+
+  /* Progression */
+  .progress {
+    position: sticky;
+    top: 12px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 50;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    width: 0%;
+    transition: width .3s;
+  }
+  .progress-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 500;
+  }
+
+  /* Questions */
+  .section-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .section-block h2 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .question-block {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .question-block:last-child { border-bottom: none; padding-bottom: 0; }
+  .question-block h3 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .options.single { grid-template-columns: 1fr; }
+  .option {
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .option:hover { border-color: var(--muted); }
+  .option.selected {
+    border-color: var(--teal);
+    background: #E0F2F1;
+  }
+  .option.correct { border-color: var(--success); background: #E8F5E9; }
+  .option.wrong { border-color: var(--error); background: #FFEBEE; }
+
+  /* Zone de texte */
+  .free-text {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.6;
+    background: var(--white);
+    color: var(--ink);
+    resize: vertical;
+    min-height: 90px;
+    transition: border-color .2s;
+  }
+  .free-text:focus { outline: none; border-color: var(--teal); }
+
+  /* Boutons */
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border);
+  }
+  .btn-outline:hover { border-color: var(--muted); }
+  .btn-light { background: #fff; color: var(--teal); }
+  .btn-light:hover { background: #E0F2F1; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Résultat */
+  .result {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin-top: 24px;
+  }
+  .result.show { display: block; }
+
+  .result-header {
+    text-align: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .result-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .result-score {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 72px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .result-score.excellent { color: var(--success); }
+  .result-score.bon { color: var(--teal); }
+  .result-score.moyen { color: var(--warning); }
+  .result-score.faible { color: var(--error); }
+  .result-message {
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .result-detail {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Détail par section */
+  .section-scores {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .section-score {
+    padding: 16px;
+    background: #FAFBFC;
+    border-radius: 3px;
+    border-left: 3px solid var(--teal);
+  }
+  .section-score h5 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .section-score-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .section-score-bar-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 999px;
+    transition: width .6s;
+  }
+  .section-score-value {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .section-score-value strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Envoi */
+  .send-block {
+    background: var(--navy);
+    color: #fff;
+    padding: 24px;
+    border-radius: 4px;
+    margin-top: 24px;
+  }
+  .send-block h3 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .send-block p {
+    font-size: 13px;
+    color: #C4CFE0;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .send-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #8FA2BF;
+    margin-top: 12px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .identity-grid { grid-template-columns: 1fr; }
+    .options { grid-template-columns: 1fr; }
+    .section-scores { grid-template-columns: 1fr; }
+    .result-score { font-size: 56px; }
+    .actions { justify-content: stretch; }
+    .actions .btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">École Schulz Genève · BI2 · Unit 7</div>
+    <h1>Test de positionnement</h1>
+    <p>
+      Vingt questions pour évaluer votre niveau de départ sur les cycles de vie
+      logiciels, l'étude de faisabilité et la documentation de projet. Les
+      questions sont mélangées à chaque essai. Comptez vingt minutes.
+    </p>
+    <div class="head-meta">
+      <span><strong>20</strong> questions</span>
+      <span><strong>4</strong> sections</span>
+      <span><strong>~20 min</strong> durée moyenne</span>
+    </div>
+  </div>
+
+  <div class="identity">
+    <h2>Avant de commencer</h2>
+    <div class="identity-grid">
+      <div class="field">
+        <label>Nom et prénom</label>
+        <input type="text" id="studentName" placeholder="par exemple : Tatiana B." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Groupe (optionnel)</label>
+        <input type="text" id="studentGroup" placeholder="par exemple : Groupe 1" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="progress">
+    <span class="progress-label">Progression</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 20</span>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="actions">
+    <button class="btn btn-outline" onclick="reset()">Réinitialiser</button>
+    <button class="btn btn-primary" id="btnResult" onclick="afficherResultat()" disabled>Corriger mon test</button>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="send-block" id="sendBlock" style="display:none;">
+    <h3>Envoyer mes résultats</h3>
+    <p>
+      Cliquez sur le bouton pour envoyer vos réponses à l'enseignante.
+      Un client mail s'ouvrira avec le message pré-rempli.
+    </p>
+    <button class="btn btn-light" onclick="envoyerResultats()">Envoyer par email</button>
+    <div class="send-note">Destinataire : t.mbi@ecole-schulz.ch</div>
+  </div>
+
+  <footer>
+    École Schulz Genève · Unit 7 · Test de positionnement
+  </footer>
+
+</div>
+
+<script>
+  /* ============================================================
+     BANQUE DE QUESTIONS
+     Chaque question a une section, une bonne réponse et un poids.
+     ============================================================ */
+  const bank = [
+    /* ---- Section 1 : Cycles de vie ---- */
+    { section: 'Cycles de vie', q: 'Quel modèle de cycle de vie est dit « prédictif » ?', options: [
+      { text: 'Agile', correct: false },
+      { text: 'Waterfall', correct: true },
+      { text: 'Scrum', correct: false },
+      { text: 'Spirale', correct: false }
+    ]},
+    { section: 'Cycles de vie', q: 'Dans un modèle Agile, les livraisons se font…', options: [
+      { text: 'Une seule fois, à la fin du projet.', correct: false },
+      { text: 'Par itérations courtes et fréquentes.', correct: true },
+      { text: 'Uniquement quand le client le demande.', correct: false },
+      { text: 'À la fin de chaque phase d\'analyse.', correct: false }
+    ]},
+    { section: 'Cycles de vie', q: 'Le modèle Waterfall convient particulièrement…', options: [
+      { text: 'Aux projets à exigences stables et bien définies.', correct: true },
+      { text: 'Aux projets à exigences changeantes.', correct: false },
+      { text: 'Aux startups qui itèrent vite.', correct: false },
+      { text: 'Aux projets sans documentation.', correct: false }
+    ]},
+    { section: 'Cycles de vie', q: 'Dans Scrum, le rôle qui priorise le backlog est…', options: [
+      { text: 'Le Scrum Master.', correct: false },
+      { text: 'Le Product Owner.', correct: true },
+      { text: 'L\'équipe de développement.', correct: false },
+      { text: 'Le client final.', correct: false }
+    ]},
+    { section: 'Cycles de vie', q: 'Le modèle en Spirale se distingue par…', options: [
+      { text: 'Sa rapidité d\'exécution.', correct: false },
+      { text: 'Sa gestion des risques à chaque cycle.', correct: true },
+      { text: 'Son absence de documentation.', correct: false },
+      { text: 'Sa simplicité de mise en œuvre.', correct: false }
+    ]},
+
+    /* ---- Section 2 : Faisabilité et besoins ---- */
+    { section: 'Faisabilité', q: 'Une étude de faisabilité sert principalement à…', options: [
+      { text: 'Écrire le code du projet.', correct: false },
+      { text: 'Vérifier que le projet est viable avant de l\'engager.', correct: true },
+      { text: 'Recruter l\'équipe de développement.', correct: false },
+      { text: 'Tester les fonctionnalités du logiciel.', correct: false }
+    ]},
+    { section: 'Faisabilité', q: 'La méthode MoSCoW sert à…', options: [
+      { text: 'Prioriser les exigences.', correct: true },
+      { text: 'Tester le code.', correct: false },
+      { text: 'Dessiner l\'interface.', correct: false },
+      { text: 'Planifier les congés de l\'équipe.', correct: false }
+    ]},
+    { section: 'Faisabilité', q: 'Que signifie la lettre C dans MoSCoW ?', options: [
+      { text: 'Critical', correct: false },
+      { text: 'Could', correct: true },
+      { text: 'Complete', correct: false },
+      { text: 'Cost', correct: false }
+    ]},
+    { section: 'Faisabilité', q: 'Parmi ces critères, lequel ne fait pas partie d\'une étude de faisabilité classique ?', options: [
+      { text: 'Faisabilité technique.', correct: false },
+      { text: 'Faisabilité économique.', correct: false },
+      { text: 'Faisabilité légale.', correct: false },
+      { text: 'Faisabilité romantique.', correct: true }
+    ]},
+    { section: 'Faisabilité', q: 'Une exigence non fonctionnelle décrit…', options: [
+      { text: 'Une action que l\'utilisateur peut faire.', correct: false },
+      { text: 'Une contrainte de performance, sécurité ou ergonomie.', correct: true },
+      { text: 'Un bug connu du logiciel.', correct: false },
+      { text: 'Un choix de langage de programmation.', correct: false }
+    ]},
+
+    /* ---- Section 3 : Documentation de projet ---- */
+    { section: 'Documentation', q: 'Une User Story est rédigée au format…', options: [
+      { text: '« Le système doit faire X. »', correct: false },
+      { text: '« En tant que [rôle], je veux [action], afin de [bénéfice]. »', correct: true },
+      { text: '« Fonction 1 : initialiser les variables. »', correct: false },
+      { text: '« Table user : id, nom, email. »', correct: false }
+    ]},
+    { section: 'Documentation', q: 'Un diagramme de Gantt sert à…', options: [
+      { text: 'Montrer la structure des tables d\'une base de données.', correct: false },
+      { text: 'Planifier des tâches dans le temps.', correct: true },
+      { text: 'Décrire les cas d\'utilisation.', correct: false },
+      { text: 'Représenter les flux d\'un algorithme.', correct: false }
+    ]},
+    { section: 'Documentation', q: 'Un diagramme de cas d\'utilisation montre…', options: [
+      { text: 'Les interactions entre acteurs et système.', correct: true },
+      { text: 'Les performances du système.', correct: false },
+      { text: 'Les choix de design graphique.', correct: false },
+      { text: 'Les coûts du projet.', correct: false }
+    ]},
+    { section: 'Documentation', q: 'La matrice de traçabilité sert à…', options: [
+      { text: 'Retrouver le lien entre exigences et livrables.', correct: true },
+      { text: 'Tracer les itinéraires des livraisons.', correct: false },
+      { text: 'Suivre le temps de travail des développeurs.', correct: false },
+      { text: 'Contrôler la qualité du café au bureau.', correct: false }
+    ]},
+    { section: 'Documentation', q: 'Dans un projet, le Product Owner est responsable de…', options: [
+      { text: 'Écrire tout le code.', correct: false },
+      { text: 'Prioriser les besoins et représenter le client.', correct: true },
+      { text: 'Animer les rétrospectives uniquement.', correct: false },
+      { text: 'Gérer uniquement la facturation.', correct: false }
+    ]},
+
+    /* ---- Section 4 : Conception comportementale ---- */
+    { section: 'Conception', q: 'Une machine à états finis (FSM) sert à décrire…', options: [
+      { text: 'Une base de données.', correct: false },
+      { text: 'Un comportement qui évolue selon des états et des transitions.', correct: true },
+      { text: 'Un algorithme de tri.', correct: false },
+      { text: 'Un diagramme de Gantt.', correct: false }
+    ]},
+    { section: 'Conception', q: 'L\'explosion combinatoire d\'une FSM étendue vient…', options: [
+      { text: 'Du nombre d\'états qui croît très vite.', correct: true },
+      { text: 'D\'un bug du langage de programmation.', correct: false },
+      { text: 'De la vitesse d\'exécution du processeur.', correct: false },
+      { text: 'Du manque de commentaires dans le code.', correct: false }
+    ]},
+    { section: 'Conception', q: 'Le pseudocode sert à…', options: [
+      { text: 'Décrire un algorithme sans utiliser la syntaxe d\'un langage précis.', correct: true },
+      { text: 'Remplacer le code de production.', correct: false },
+      { text: 'Tester automatiquement une application.', correct: false },
+      { text: 'Générer une base de données.', correct: false }
+    ]},
+    { section: 'Conception', q: 'Un organigramme est particulièrement utile pour…', options: [
+      { text: 'Représenter une logique conditionnelle.', correct: true },
+      { text: 'Mesurer la performance d\'un algorithme.', correct: false },
+      { text: 'Planifier les congés.', correct: false },
+      { text: 'Documenter une facture.', correct: false }
+    ]},
+    { section: 'Conception', q: 'Une propriété de sûreté d\'un système signifie que…', options: [
+      { text: 'Le système ne fait rien de dangereux.', correct: true },
+      { text: 'Le système finit toujours par s\'arrêter.', correct: false },
+      { text: 'Le système est écrit en Java.', correct: false },
+      { text: 'Le système coûte peu.', correct: false }
+    ]}
+  ];
+
+  /* ============================================================
+     MÉLANGE
+     ============================================================ */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildQuiz() {
+    let selection = shuffle(bank);
+    selection = selection.map(q => ({
+      ...q,
+      options: shuffle(q.options)
+    }));
+    return selection;
+  }
+
+  let quiz = buildQuiz();
+  const answers = {};
+
+  /* ============================================================
+     RENDU
+     ============================================================ */
+  function renderQuiz() {
+    const container = document.getElementById('quiz');
+    container.innerHTML = '';
+
+    // Regrouper les questions par section
+    const sections = ['Cycles de vie', 'Faisabilité', 'Documentation', 'Conception'];
+    sections.forEach(sec => {
+      const questions = quiz.filter(q => q.section === sec);
+      if (questions.length === 0) return;
+
+      const block = document.createElement('div');
+      block.className = 'section-block';
+      let html = `<h2>${sec}</h2>`;
+      questions.forEach((q, _) => {
+        const qi = quiz.indexOf(q);
+        html += `<div class="question-block">
+          <h3>${qi + 1}. ${q.q}</h3>
+          <div class="options">`;
+        q.options.forEach((opt, oi) => {
+          html += `<div class="option" data-q="${qi}" data-o="${oi}">${opt.text}</div>`;
+        });
+        html += `</div></div>`;
+      });
+      block.innerHTML = html;
+      container.appendChild(block);
+    });
+
+    document.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => {
+        const qi = parseInt(el.dataset.q);
+        const oi = parseInt(el.dataset.o);
+        answers[qi] = oi;
+        document.querySelectorAll(`.option[data-q="${qi}"]`).forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        updateProgress();
+      });
+    });
+  }
+
+  function updateProgress() {
+    const count = Object.keys(answers).length;
+    document.getElementById('progressCount').textContent = count + ' / ' + quiz.length;
+    document.getElementById('progressFill').style.width = (count / quiz.length * 100) + '%';
+    document.getElementById('btnResult').disabled = count !== quiz.length;
+  }
+
+  /* ============================================================
+     CORRECTION
+     ============================================================ */
+  function corriger() {
+    const sections = ['Cycles de vie', 'Faisabilité', 'Documentation', 'Conception'];
+    const stats = {};
+    sections.forEach(s => stats[s] = { correct: 0, total: 0, questions: [] });
+
+    let score = 0;
+    quiz.forEach((q, qi) => {
+      const chosen = q.options[answers[qi]];
+      const isCorrect = chosen && chosen.correct;
+      if (isCorrect) score++;
+      stats[q.section].total++;
+      if (isCorrect) stats[q.section].correct++;
+      stats[q.section].questions.push({
+        q: q.q,
+        chosen: chosen ? chosen.text : 'Non répondu',
+        correct: isCorrect
+      });
+    });
+
+    return { score, total: quiz.length, stats };
+  }
+
+  /* ============================================================
+     AFFICHAGE DU RÉSULTAT
+     ============================================================ */
+  function afficherResultat() {
+    const { score, total, stats } = corriger();
+    const percent = Math.round((score / total) * 100);
+
+    let level, message, detail;
+    if (percent >= 85) {
+      level = 'excellent';
+      message = 'Excellent niveau de départ';
+      detail = 'Vous maîtrisez déjà les concepts clés de l\'Unité 7. Vous pourrez approfondir les cas complexes et viser un travail de qualité Distinction.';
+    } else if (percent >= 65) {
+      level = 'bon';
+      message = 'Bon niveau de départ';
+      detail = 'Vous avez de bonnes bases. Quelques révisions sur les notions moins maîtrisées suffiront pour aborder l\'année sereinement.';
+    } else if (percent >= 40) {
+      level = 'moyen';
+      message = 'Niveau intermédiaire';
+      detail = 'Certaines notions sont fragiles. Revoyez les sections où vous avez perdu des points avant d\'attaquer les projets notés.';
+    } else {
+      level = 'faible';
+      message = 'Niveau de départ à renforcer';
+      detail = 'Les bases de l\'Unité 7 doivent être consolidées. Reprenez les cycles de vie, la faisabilité et la documentation de projet en priorité.';
+    }
+
+    // Détail par section
+    const sectionLabels = {
+      'Cycles de vie': 'Section 1 · Cycles de vie',
+      'Faisabilité': 'Section 2 · Faisabilité',
+      'Documentation': 'Section 3 · Documentation',
+      'Conception': 'Section 4 · Conception comportementale'
+    };
+
+    let sectionsHtml = '<div class="section-scores">';
+    Object.keys(stats).forEach(sec => {
+      const s = stats[sec];
+      const p = Math.round((s.correct / s.total) * 100);
+      sectionsHtml += `
+        <div class="section-score">
+          <h5>${sectionLabels[sec]}</h5>
+          <div class="section-score-bar"><div class="section-score-bar-fill" style="width:${p}%"></div></div>
+          <div class="section-score-value"><strong>${s.correct}/${s.total}</strong> · ${p}%</div>
+        </div>
+      `;
+    });
+    sectionsHtml += '</div>';
+
+    // Détail des réponses
+    let detailsHtml = '<div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">';
+    detailsHtml += '<h4 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Détail des réponses</h4>';
+    quiz.forEach((q, qi) => {
+      const chosen = q.options[answers[qi]];
+      const isCorrect = chosen && chosen.correct;
+      detailsHtml += `<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <div style="font-weight:500;margin-bottom:4px;">${qi + 1}. ${q.q}</div>
+        <div style="color:${isCorrect ? 'var(--success)' : 'var(--error)'};font-family:var(--mono);font-size:12px;">
+          ${isCorrect ? '✓' : '✗'} ${chosen ? chosen.text : 'Non répondu'}
+        </div>
+      </div>`;
+    });
+    detailsHtml += '</div>';
+
+    const result = document.getElementById('result');
+    result.innerHTML = `
+      <div class="result-header">
+        <div class="result-eyebrow">Votre score</div>
+        <div class="result-score ${level}">${score}/${total}</div>
+        <div class="result-message">${message}</div>
+        <div class="result-detail">${detail}</div>
+      </div>
+      ${sectionsHtml}
+      ${detailsHtml}
+    `;
+    result.classList.add('show');
+    document.getElementById('sendBlock').style.display = 'block';
+
+    // Colorer les options dans le formulaire
+    quiz.forEach((q, qi) => {
+      q.options.forEach((opt, oi) => {
+        const el = document.querySelector(`.option[data-q="${qi}"][data-o="${oi}"]`);
+        if (!el) return;
+        el.classList.remove('correct', 'wrong');
+        if (opt.correct) el.classList.add('correct');
+        else if (answers[qi] === oi) el.classList.add('wrong');
+      });
+    });
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ============================================================
+     ENVOI PAR EMAIL
+     ============================================================ */
+  function envoyerResultats() {
+    const nom = document.getElementById('studentName').value.trim();
+    const groupe = document.getElementById('studentGroup').value.trim();
+
+    if (!nom) {
+      alert('Renseignez votre nom avant d\'envoyer.');
+      document.getElementById('studentName').focus();
+      return;
+    }
+
+    const { score, total, stats } = corriger();
+    const percent = Math.round((score / total) * 100);
+
+    const lignes = [];
+    lignes.push('RÉSULTATS DU TEST DE POSITIONNEMENT');
+    lignes.push('École Schulz Genève · BI2 · Unit 7');
+    lignes.push('');
+    lignes.push('Nom : ' + nom);
+    if (groupe) lignes.push('Groupe : ' + groupe);
+    lignes.push('Date : ' + new Date().toLocaleString('fr-FR'));
+    lignes.push('');
+    lignes.push('SCORE GLOBAL : ' + score + '/' + total + ' (' + percent + '%)');
+    lignes.push('');
+    lignes.push('DÉTAIL PAR SECTION');
+    Object.keys(stats).forEach(sec => {
+      const s = stats[sec];
+      const p = Math.round((s.correct / s.total) * 100);
+      lignes.push('  ' + sec + ' : ' + s.correct + '/' + s.total + ' (' + p + '%)');
+    });
+    lignes.push('');
+    lignes.push('DÉTAIL DES RÉPONSES');
+    quiz.forEach((q, qi) => {
+      const chosen = q.options[answers[qi]];
+      const isCorrect = chosen && chosen.correct;
+      lignes.push('');
+      lignes.push('Q' + (qi + 1) + ' [' + q.section + '] ' + q.q);
+      lignes.push('   Réponse : ' + (chosen ? chosen.text : 'Non répondu'));
+      lignes.push('   ' + (isCorrect ? 'Correcte' : 'Incorrecte'));
+    });
+
+    const sujet = '[TEST7] ' + nom + ' · ' + score + '/' + total;
+    const corps = encodeURIComponent(lignes.join('\n'));
+    const destinataire = 't.mbi@ecole-schulz.ch';
+
+    window.location.href = 'mailto:' + destinataire + '?subject=' + encodeURIComponent(sujet) + '&body=' + corps;
+  }
+
+  /* ============================================================
+     RESET
+     ============================================================ */
+  function reset() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    quiz = buildQuiz();
+    renderQuiz();
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('sendBlock').style.display = 'none';
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ============================================================
+     INITIALISATION
+     ============================================================ */
+  renderQuiz();
+  updateProgress();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test DISC. Formation des groupes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>D</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E;
+    --teal-bright: #5EEAD4;
+    --teal-dark: #0D5E57;
+    --navy: #16294D;
+    --border: #E7E9EE;
+    --muted: #64707E;
+    --ink: #12161C;
+    --page: #F1F5F4;
+    --white: #FFF;
+    --success: #2E7D32;
+    --warning: #E65100;
+    --error: #B71C1C;
+    --D-color: #B71C1C;
+    --I-color: #E65100;
+    --S-color: #2E7D32;
+    --C-color: #1565C0;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--page);
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  /* En-tête */
+  .head { margin-bottom: 28px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .head h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(28px, 5vw, 40px);
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .head p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.65;
+  }
+  .head-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .head-meta strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Bloc identité */
+  .identity {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .identity h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 14px;
+    background: var(--white);
+    color: var(--ink);
+    transition: border-color .2s;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  /* Profils */
+  .profiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .profile-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 4px solid;
+    border-radius: 3px;
+    padding: 14px 12px;
+  }
+  .profile-card.D { border-top-color: var(--D-color); }
+  .profile-card.I { border-top-color: var(--I-color); }
+  .profile-card.S { border-top-color: var(--S-color); }
+  .profile-card.C { border-top-color: var(--C-color); }
+  .profile-letter {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .profile-card.D .profile-letter { color: var(--D-color); }
+  .profile-card.I .profile-letter { color: var(--I-color); }
+  .profile-card.S .profile-letter { color: var(--S-color); }
+  .profile-card.C .profile-letter { color: var(--C-color); }
+  .profile-name {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .profile-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* Barre de progression */
+  .progress {
+    position: sticky;
+    top: 12px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 50;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    width: 0%;
+    transition: width .3s;
+  }
+  .progress-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 500;
+  }
+
+  /* Questions */
+  .question-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .question-block h3 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .option {
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .option:hover { border-color: var(--muted); }
+  .option.selected {
+    border-color: var(--teal);
+    background: #E0F2F1;
+  }
+
+  /* Boutons */
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border);
+  }
+  .btn-outline:hover { border-color: var(--muted); }
+  .btn-light {
+    background: #fff;
+    color: var(--teal);
+  }
+  .btn-light:hover { background: #E0F2F1; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Résultat */
+  .result {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin-top: 24px;
+  }
+  .result.show { display: block; }
+
+  .result-header {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .result-letter {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 110px;
+    line-height: 1;
+    text-align: center;
+  }
+  .result-letter.D { color: var(--D-color); }
+  .result-letter.I { color: var(--I-color); }
+  .result-letter.S { color: var(--S-color); }
+  .result-letter.C { color: var(--C-color); }
+  .result-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 28px;
+    margin-bottom: 8px;
+    line-height: 1.15;
+  }
+  .result-subtitle {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .result-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* Barres de score */
+  .scores { margin-bottom: 28px; }
+  .score-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 70px;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-letter {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .score-letter.D { color: var(--D-color); }
+  .score-letter.I { color: var(--I-color); }
+  .score-letter.S { color: var(--S-color); }
+  .score-letter.C { color: var(--C-color); }
+  .score-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .6s ease;
+  }
+  .score-bar-fill.D { background: var(--D-color); }
+  .score-bar-fill.I { background: var(--I-color); }
+  .score-bar-fill.S { background: var(--S-color); }
+  .score-bar-fill.C { background: var(--C-color); }
+  .score-value {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+  .score-value strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Lecture des résultats */
+  .reading { margin-bottom: 28px; }
+  .reading h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 14px;
+  }
+  .reading-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .reading-card {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    border-left: 3px solid var(--teal);
+  }
+  .reading-card.dominant { border-left-color: var(--success); }
+  .reading-card.weak { border-left-color: var(--warning); }
+  .reading-card.secondary { border-left-color: var(--C-color); }
+  .reading-card h5 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .reading-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Rôle */
+  .role-block {
+    padding: 20px;
+    background: #FAFBFC;
+    border-left: 3px solid var(--teal);
+    border-radius: 3px;
+    margin-bottom: 24px;
+  }
+  .role-block h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .role-block .role-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .role-block ul { list-style: none; }
+  .role-block li {
+    padding: 6px 0 6px 20px;
+    position: relative;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .role-block li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+  }
+
+  /* Envoi */
+  .send-block {
+    background: var(--navy);
+    color: #fff;
+    padding: 24px;
+    border-radius: 4px;
+    margin-top: 24px;
+  }
+  .send-block h3 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .send-block p {
+    font-size: 13px;
+    color: #C4CFE0;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .send-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #8FA2BF;
+    margin-top: 12px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profiles { grid-template-columns: 1fr 1fr; }
+    .identity-grid { grid-template-columns: 1fr; }
+    .options { grid-template-columns: 1fr; }
+    .result-header { grid-template-columns: 1fr; text-align: center; }
+    .result-letter { font-size: 80px; }
+    .reading-grid { grid-template-columns: 1fr; }
+    .actions { justify-content: stretch; }
+    .actions .btn { flex: 1; text-align: center; }
+  }
+  @media (max-width: 480px) {
+    .profiles { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">École Schulz Genève · BI2 · Unit 7</div>
+    <h1>Test DISC</h1>
+    <p>
+      Vingt-quatre questions pour mesurer vos quatre tendances comportementales.
+      Les questions et les réponses sont mélangées à chaque essai. Comptez
+      huit à dix minutes.
+    </p>
+    <div class="head-meta">
+      <span><strong>24</strong> questions</span>
+      <span><strong>4</strong> dimensions mesurées</span>
+      <span><strong>~8 min</strong> durée moyenne</span>
+    </div>
+  </div>
+
+  <div class="identity">
+    <h2>Avant de commencer</h2>
+    <div class="identity-grid">
+      <div class="field">
+        <label>Nom et prénom</label>
+        <input type="text" id="studentName" placeholder="par exemple : Tatiana B." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Groupe souhaité (optionnel)</label>
+        <input type="text" id="studentGroup" placeholder="par exemple : Groupe 1" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="profiles">
+    <div class="profile-card D">
+      <div class="profile-letter">D</div>
+      <div class="profile-name">Dominance</div>
+      <div class="profile-desc">Direct, orienté résultat, aime décider.</div>
+    </div>
+    <div class="profile-card I">
+      <div class="profile-letter">I</div>
+      <div class="profile-name">Influence</div>
+      <div class="profile-desc">Communicant, enthousiaste, fédère.</div>
+    </div>
+    <div class="profile-card S">
+      <div class="profile-letter">S</div>
+      <div class="profile-name">Stabilité</div>
+      <div class="profile-desc">Fiable, patient, structuré.</div>
+    </div>
+    <div class="profile-card C">
+      <div class="profile-letter">C</div>
+      <div class="profile-name">Conformité</div>
+      <div class="profile-desc">Rigoureux, analytique, précis.</div>
+    </div>
+  </div>
+
+  <div class="progress">
+    <span class="progress-label">Progression</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 24</span>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="actions">
+    <button class="btn btn-outline" onclick="reset()">Réinitialiser</button>
+    <button class="btn btn-primary" id="btnResult" onclick="afficherResultat()" disabled>Voir mon résultat</button>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="send-block" id="sendBlock" style="display:none;">
+    <h3>Envoyer mes résultats</h3>
+    <p>
+      Cliquez sur le bouton pour envoyer vos réponses et votre profil complet
+      à l'enseignante. Un client mail s'ouvrira avec le message pré-rempli.
+    </p>
+    <button class="btn btn-light" onclick="envoyerResultats()">Envoyer par email</button>
+    <div class="send-note">Destinataire : t.mbi@ecole-schulz.ch</div>
+  </div>
+
+  <footer>
+    École Schulz Genève · Unit 7 · Test DISC
+  </footer>
+
+</div>
+
+<script>
+  /* ============================================================
+     BANQUE DE QUESTIONS
+     Chaque question mesure une seule dimension.
+     Les dimensions sont ensuite réparties aléatoirement.
+     ============================================================ */
+  const bank = [
+    // --- Dominance ---
+    { dim: 'D', q: 'Face à un projet qui prend du retard, votre premier réflexe est de…', options: [
+      { text: 'Reprendre la main et accélérer la cadence.', w: 2 },
+      { text: 'Demander l\'avis de l\'équipe avant d\'agir.', w: 0 },
+      { text: 'Vérifier chaque détail du planning.', w: 0 },
+      { text: 'Attendre que la situation se stabilise.', w: 0 }
+    ]},
+    { dim: 'D', q: 'En réunion, vous prenez naturellement…', options: [
+      { text: 'La parole pour trancher et avancer.', w: 2 },
+      { text: 'Des notes précises pour tout retenir.', w: 0 },
+      { text: 'Le temps d\'écouter chacun longuement.', w: 0 },
+      { text: 'L\'initiative d\'animer les échanges.', w: 1 }
+    ]},
+    { dim: 'D', q: 'Votre rapport au risque dans un projet est plutôt…', options: [
+      { text: 'Calculé, mais je fonce quand il le faut.', w: 2 },
+      { text: 'Prudent, je préfère sécuriser chaque étape.', w: 0 },
+      { text: 'Confiant, je m\'adapte en marchant.', w: 1 },
+      { text: 'Analytique, je mesure avant de m\'engager.', w: 0 }
+    ]},
+    { dim: 'D', q: 'Ce qui vous agace le plus chez les autres, c\'est…', options: [
+      { text: 'Le manque de décision et les atermoiements.', w: 2 },
+      { text: 'Le manque de rigueur et d\'organisation.', w: 0 },
+      { text: 'Le manque de convivialité et de contact.', w: 0 },
+      { text: 'Le manque de méthode et de documentation.', w: 0 }
+    ]},
+    { dim: 'D', q: 'Dans un groupe, votre rôle naturel est…', options: [
+      { text: 'Celui qui fixe la direction et les objectifs.', w: 2 },
+      { text: 'Celui qui met l\'ambiance et motive.', w: 0 },
+      { text: 'Celui qui assure la cohésion discrètement.', w: 0 },
+      { text: 'Celui qui contrôle la qualité du travail.', w: 0 }
+    ]},
+    { dim: 'D', q: 'Face à une opportunité inattendue, vous…', options: [
+      { text: 'Saisissez la balle au bond sans hésiter.', w: 2 },
+      { text: 'En parlez autour de vous pour avoir des avis.', w: 0 },
+      { text: 'Prenez le temps de mesurer les conséquences.', w: 0 },
+      { text: 'Attendez de voir si elle se confirme.', w: 0 }
+    ]},
+
+    // --- Influence ---
+    { dim: 'I', q: 'Dans un nouveau groupe, vous…', options: [
+      { text: 'Allez naturellement vers les autres et engagez la conversation.', w: 2 },
+      { text: 'Observez d\'abord avant de vous mêler au groupe.', w: 0 },
+      { text: 'Attendez qu\'on vienne vers vous.', w: 0 },
+      { text: 'Cherchez qui a les informations utiles.', w: 0 }
+    ]},
+    { dim: 'I', q: 'Ce que vous aimez le plus dans le travail en équipe, c\'est…', options: [
+      { text: 'Les échanges, les idées qui fusent, l\'énergie collective.', w: 2 },
+      { text: 'La clarté des rôles et la méthode.', w: 0 },
+      { text: 'La stabilité et la confiance qui s\'installent.', w: 0 },
+      { text: 'La qualité technique du résultat final.', w: 0 }
+    ]},
+    { dim: 'I', q: 'Pour convaincre quelqu\'un, vous comptez d\'abord sur…', options: [
+      { text: 'Votre enthousiasme et votre capacité à raconter.', w: 2 },
+      { text: 'Les faits et les chiffres que vous avez préparés.', w: 0 },
+      { text: 'La relation de confiance déjà établie.', w: 0 },
+      { text: 'La solidité logique de votre argumentation.', w: 0 }
+    ]},
+    { dim: 'I', q: 'Dans une présentation orale, vous êtes plutôt…', options: [
+      { text: 'À l\'aise et expressif, vous captivez l\'auditoire.', w: 2 },
+      { text: 'Structuré et posé, vous suivez votre plan.', w: 0 },
+      { text: 'Attentif aux réactions, vous adaptez votre ton.', w: 1 },
+      { text: 'Précis sur les détails techniques.', w: 0 }
+    ]},
+    { dim: 'I', q: 'Votre façon naturelle de communiquer est…', options: [
+      { text: 'Chaleureuse et spontanée, vous aimez parler.', w: 2 },
+      { text: 'Directe et factuelle, vous allez à l\'essentiel.', w: 0 },
+      { text: 'Douce et à l\'écoute, vous laissez parler les autres.', w: 0 },
+      { text: 'Écrite et documentée, vous préférez les traces.', w: 0 }
+    ]},
+    { dim: 'I', q: 'Un désaccord dans l\'équipe, vous…', options: [
+      { text: 'Le portez sur la place publique pour en discuter.', w: 2 },
+      { text: 'Le tranchez rapidement pour avancer.', w: 0 },
+      { text: 'Cherchez un compromis discret.', w: 0 },
+      { text: 'Analysez les causes avant de proposer une solution.', w: 0 }
+    ]},
+
+    // --- Stabilité ---
+    { dim: 'S', q: 'Face à un changement imprévu, vous…', options: [
+      { text: 'Prenez le temps d\'intégrer la nouveauté avant d\'agir.', w: 2 },
+      { text: 'Voyez tout de suite comment en tirer parti.', w: 0 },
+      { text: 'Foncez pour ne pas perdre de temps.', w: 0 },
+      { text: 'Cherchez d\'abord à comprendre pourquoi.', w: 0 }
+    ]},
+    { dim: 'S', q: 'Ce qui compte le plus dans un travail bien fait, c\'est…', options: [
+      { text: 'La régularité et la fiabilité dans la durée.', w: 2 },
+      { text: 'L\'originalité et l\'impact du résultat.', w: 0 },
+      { text: 'La précision technique et la conformité.', w: 0 },
+      { text: 'La satisfaction des personnes impliquées.', w: 1 }
+    ]},
+    { dim: 'S', q: 'Votre rythme de travail naturel est…', options: [
+      { text: 'Régulier, posé, sans à-coups.', w: 2 },
+      { text: 'Intense avec des pointes selon les urgences.', w: 0 },
+      { text: 'Variable, porté par l\'élan du moment.', w: 0 },
+      { text: 'Méthodique, par étapes vérifiées.', w: 0 }
+    ]},
+    { dim: 'S', q: 'Dans une équipe agitée, vous êtes…', options: [
+      { text: 'Le point d\'équilibre qui apaise les tensions.', w: 2 },
+      { text: 'Celui qui recadre et fixe les règles.', w: 0 },
+      { text: 'Celui qui relance l\'énergie et l\'enthousiasme.', w: 0 },
+      { text: 'Celui qui documente ce qui se passe.', w: 0 }
+    ]},
+    { dim: 'S', q: 'Votre rapport à la routine est…', options: [
+      { text: 'Rassurant, elle me permet de me concentrer.', w: 2 },
+      { text: 'Étouffant, j\'ai besoin de variété.', w: 0 },
+      { text: 'Neutre, je m\'adapte à ce qui vient.', w: 1 },
+      { text: 'Utile si elle sert la qualité.', w: 0 }
+    ]},
+    { dim: 'S', q: 'Quand un collègue traverse une difficulté, vous…', options: [
+      { text: 'Prenez le temps de l\'écouter et de le soutenir.', w: 2 },
+      { text: 'Lui donnez des conseils directs et concrets.', w: 0 },
+      { text: 'Cherchez une solution technique au problème.', w: 0 },
+      { text: 'En parlez à d\'autres pour mobiliser de l\'aide.', w: 1 }
+    ]},
+
+    // --- Conformité ---
+    { dim: 'C', q: 'Avant de rendre un travail, vous…', options: [
+      { text: 'Vérifiez chaque détail une dernière fois.', w: 2 },
+      { text: 'Le montrez à quelqu\'un pour avoir un avis.', w: 0 },
+      { text: 'Le livrez dès qu\'il est prêt, sans traîner.', w: 0 },
+      { text: 'Vérifiez surtout l\'impact global du résultat.', w: 0 }
+    ]},
+    { dim: 'C', q: 'Un document long et technique, vous…', options: [
+      { text: 'Le lisez en entier, en surlignant et annotant.', w: 2 },
+      { text: 'Allez directement à la conclusion.', w: 0 },
+      { text: 'En discutez avec quelqu\'un pour comprendre vite.', w: 0 },
+      { text: 'Le parcourez en cherchant l\'essentiel.', w: 0 }
+    ]},
+    { dim: 'C', q: 'Votre rapport aux règles établies est…', options: [
+      { text: 'Important, elles garantissent la qualité.', w: 2 },
+      { text: 'Souple, je les adapte au contexte.', w: 0 },
+      { text: 'Secondaire, je préfère l\'initiative.', w: 0 },
+      { text: 'Utile si elles sont expliquées et justes.', w: 1 }
+    ]},
+    { dim: 'C', q: 'Ce qui vous stresse le plus, c\'est…', options: [
+      { text: 'L\'idée de laisser passer une erreur.', w: 2 },
+      { text: 'L\'idée de rater une occasion.', w: 0 },
+      { text: 'L\'idée de créer un conflit.', w: 0 },
+      { text: 'L\'idée de perdre du temps.', w: 0 }
+    ]},
+    { dim: 'C', q: 'Dans un projet, vous êtes plutôt celui qui…', options: [
+      { text: 'Contrôle la conformité et la traçabilité.', w: 2 },
+      { text: 'Fixe les priorités et les objectifs.', w: 0 },
+      { text: 'Crée du lien et communique.', w: 0 },
+      { text: 'Maintient la stabilité et la cohésion.', w: 0 }
+    ]},
+    { dim: 'C', q: 'Votre rapport au détail est…', options: [
+      { text: 'Central, c\'est là que se joue la qualité.', w: 2 },
+      { text: 'Secondaire, je préfère la vision d\'ensemble.', w: 0 },
+      { text: 'Variable selon le contexte.', w: 1 },
+      { text: 'Utile si le temps le permet.', w: 0 }
+    ]}
+  ];
+
+  /* ============================================================
+     PROFILS
+     ============================================================ */
+  const profiles = {
+    D: {
+      name: 'Dominance',
+      desc: 'Direct, orienté résultat, aime décider et avancer vite. Vous prenez naturellement la direction et vous n\'aimez pas perdre de temps.',
+      role: 'Chef de projet · Product Owner',
+      tasks: [
+        'Fixer la vision et les priorités du projet',
+        'Prendre les décisions difficiles',
+        'Arbitrer les conflits dans l\'équipe',
+        'Représenter l\'équipe face au client'
+      ]
+    },
+    I: {
+      name: 'Influence',
+      desc: 'Communicant, enthousiaste, fédère et convainc. Vous créez du lien et vous savez embarquer les autres autour d\'une idée.',
+      role: 'Business analyst · Présentateur',
+      tasks: [
+        'Rédiger et présenter les User Stories',
+        'Animer les réunions avec le client',
+        'Faire le lien entre l\'équipe et l\'extérieur',
+        'Défendre les choix techniques devant un auditoire'
+      ]
+    },
+    S: {
+      name: 'Stabilité',
+      desc: 'Fiable, patient, structuré, aime les méthodes éprouvées. Vous êtes le point d\'équilibre de l\'équipe et vous inspirez confiance par votre constance.',
+      role: 'Scrum Master · Coordinateur',
+      tasks: [
+        'Suivre l\'avancement des tâches',
+        'Maintenir la cohésion de l\'équipe',
+        'Documenter les décisions au fil de l\'eau',
+        'Gérer le planning et les dépendances'
+      ]
+    },
+    C: {
+      name: 'Conformité',
+      desc: 'Rigoureux, analytique, attentif aux détails et à la qualité. Vous vérifiez, vous mesurez, vous documentez. Vous êtes la mémoire technique du groupe.',
+      role: 'Testeur · Analyste qualité',
+      tasks: [
+        'Rédiger l\'étude de faisabilité',
+        'Vérifier la traçabilité des exigences',
+        'Conduire les tests et documenter les résultats',
+        'Contrôler la conformité aux normes'
+      ]
+    }
+  };
+
+  /* ============================================================
+     UTILITAIRES ALÉATOIRES
+     ============================================================ */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /* ============================================================
+     SÉLECTION ET MÉLANGE
+     On sélectionne 6 questions par dimension, on mélange l'ordre
+     des questions et l'ordre des options dans chaque question.
+     ============================================================ */
+  function buildQuiz() {
+    const dims = ['D', 'I', 'S', 'C'];
+    let selection = [];
+    dims.forEach(dim => {
+      const pool = bank.filter(q => q.dim === dim);
+      selection = selection.concat(shuffle(pool).slice(0, 6));
+    });
+    // Mélange global des questions
+    selection = shuffle(selection);
+    // Mélange des options dans chaque question
+    selection = selection.map(q => ({
+      ...q,
+      options: shuffle(q.options)
+    }));
+    return selection;
+  }
+
+  let quiz = buildQuiz();
+  const answers = {};
+
+  /* ============================================================
+     RENDU
+     ============================================================ */
+  function renderQuiz() {
+    const container = document.getElementById('quiz');
+    container.innerHTML = '';
+    quiz.forEach((q, qi) => {
+      const block = document.createElement('div');
+      block.className = 'question-block';
+      block.innerHTML = `<h3>${qi + 1}. ${q.q}</h3><div class="options">` +
+        q.options.map((opt, oi) =>
+          `<div class="option" data-q="${qi}" data-o="${oi}">${opt.text}</div>`
+        ).join('') +
+        `</div>`;
+      container.appendChild(block);
+    });
+
+    document.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => {
+        const qi = parseInt(el.dataset.q);
+        const oi = parseInt(el.dataset.o);
+        answers[qi] = oi;
+        document.querySelectorAll(`.option[data-q="${qi}"]`).forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        updateProgress();
+      });
+    });
+  }
+
+  function updateProgress() {
+    const count = Object.keys(answers).length;
+    document.getElementById('progressCount').textContent = count + ' / ' + quiz.length;
+    document.getElementById('progressFill').style.width = (count / quiz.length * 100) + '%';
+    const ready = count === quiz.length;
+    document.getElementById('btnResult').disabled = !ready;
+  }
+
+  /* ============================================================
+     CALCUL DES SCORES
+     Chaque question ne contribue qu'à sa dimension.
+     Le score brut est divisé par le score maximum possible
+     pour obtenir un pourcentage entre 0 et 100.
+     ============================================================ */
+  function calculerScores() {
+    const totals = { D: 0, I: 0, S: 0, C: 0 };
+    const maxes = { D: 0, I: 0, S: 0, C: 0 };
+
+    quiz.forEach((q, qi) => {
+      // Score maximum possible pour cette question
+      const maxForQuestion = Math.max(...q.options.map(o => o.w));
+      maxes[q.dim] += maxForQuestion;
+
+      // Score obtenu
+      if (answers[qi] !== undefined) {
+        const chosen = q.options[answers[qi]];
+        totals[q.dim] += chosen.w;
+      }
+    });
+
+    // Pourcentage par dimension
+    const percents = {};
+    ['D', 'I', 'S', 'C'].forEach(d => {
+      percents[d] = maxes[d] > 0 ? Math.round((totals[d] / maxes[d]) * 100) : 0;
+    });
+
+    return { totals, maxes, percents };
+  }
+
+  /* ============================================================
+     AFFICHAGE DU RÉSULTAT
+     ============================================================ */
+  function afficherResultat() {
+    const { totals, maxes, percents } = calculerScores();
+
+    // Classement des quatre dimensions
+    const ranked = Object.entries(percents).sort((a, b) => b[1] - a[1]);
+    const dominant = ranked[0][0];
+    const secondary = ranked[1][0];
+    const weakest = ranked[3][0];
+    const p = profiles[dominant];
+
+    // Lecture des forces et faiblesses
+    const lectures = {
+      D: {
+        force: 'Prise de décision rapide, sens du résultat, capacité à avancer sous pression.',
+        faiblesse: 'Peut brusquer l\'équipe, négliger l\'écoute, sous-estimer les détails.'
+      },
+      I: {
+        force: 'Communication naturelle, enthousiasme communicatif, sens du contact.',
+        faiblesse: 'Peut se disperser, éviter les sujets difficiles, manquer de rigueur.'
+      },
+      S: {
+        force: 'Fiabilité, écoute active, constance, création de confiance dans la durée.',
+        faiblesse: 'Peut résister au changement, éviter le conflit, hésiter à trancher.'
+      },
+      C: {
+        force: 'Rigueur, analyse fine, souci de la qualité et de la conformité.',
+        faiblesse: 'Peut ralentir le groupe, sur-analyser, sous-estimer le facteur humain.'
+      }
+    };
+
+    const result = document.getElementById('result');
+    result.innerHTML = `
+      <div class="result-header">
+        <div class="result-letter ${dominant}">${dominant}</div>
+        <div>
+          <div class="result-subtitle">Profil dominant</div>
+          <div class="result-name">${p.name}</div>
+          <div class="result-desc">${p.desc}</div>
+        </div>
+      </div>
+
+      <div class="scores">
+        ${['D','I','S','C'].map(l => `
+          <div class="score-row">
+            <div class="score-letter ${l}">${l}</div>
+            <div class="score-bar"><div class="score-bar-fill ${l}" style="width:${percents[l]}%"></div></div>
+            <div class="score-value"><strong>${percents[l]}%</strong> · ${totals[l]}/${maxes[l]}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="reading">
+        <h4>Lecture de votre profil</h4>
+        <div class="reading-grid">
+          <div class="reading-card dominant">
+            <h5>Force dominante · ${dominant} · ${profiles[dominant].name}</h5>
+            <p>${lectures[dominant].force}</p>
+          </div>
+          <div class="reading-card secondary">
+            <h5>Force secondaire · ${secondary} · ${profiles[secondary].name}</h5>
+            <p>${lectures[secondary].force}</p>
+          </div>
+          <div class="reading-card weak">
+            <h5>Point faible · ${weakest} · ${profiles[weakest].name}</h5>
+            <p>${lectures[weakest].faiblesse}</p>
+          </div>
+          <div class="reading-card">
+            <h5>Ce que cela implique en équipe</h5>
+            <p>
+              Votre profil dominant vous rend utile pour certaines tâches. Votre point faible
+              signale ce qu\'il faudra déléguer ou renforcer dans votre groupe. Cherchez
+              un coéquipier dont le profil compense le vôtre.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-block">
+        <h4>Rôle suggéré dans votre groupe</h4>
+        <div class="role-title">${p.role}</div>
+        <ul>${p.tasks.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+    `;
+    result.classList.add('show');
+    document.getElementById('sendBlock').style.display = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ============================================================
+     ENVOI PAR EMAIL
+     ============================================================ */
+  function envoyerResultats() {
+    const nom = document.getElementById('studentName').value.trim();
+    const groupe = document.getElementById('studentGroup').value.trim();
+
+    if (!nom) {
+      alert('Renseignez votre nom avant d\'envoyer.');
+      document.getElementById('studentName').focus();
+      return;
+    }
+
+    const { totals, maxes, percents } = calculerScores();
+    const ranked = Object.entries(percents).sort((a, b) => b[1] - a[1]);
+    const dominant = ranked[0][0];
+    const secondary = ranked[1][0];
+    const weakest = ranked[3][0];
+    const p = profiles[dominant];
+
+    const lignes = [];
+    lignes.push('RÉSULTATS DU TEST DISC');
+    lignes.push('École Schulz Genève · BI2 · Unit 7');
+    lignes.push('');
+    lignes.push('Nom : ' + nom);
+    if (groupe) lignes.push('Groupe souhaité : ' + groupe);
+    lignes.push('Date : ' + new Date().toLocaleString('fr-FR'));
+    lignes.push('');
+    lignes.push('SCORES PAR DIMENSION');
+    ['D', 'I', 'S', 'C'].forEach(l => {
+      lignes.push(l + ' (' + profiles[l].name + ') : ' + percents[l] + '%   [' + totals[l] + '/' + maxes[l] + ']');
+    });
+    lignes.push('');
+    lignes.push('LECTURE');
+    lignes.push('Profil dominant   : ' + dominant + ' · ' + profiles[dominant].name);
+    lignes.push('Profil secondaire : ' + secondary + ' · ' + profiles[secondary].name);
+    lignes.push('Point faible      : ' + weakest + ' · ' + profiles[weakest].name);
+    lignes.push('');
+    lignes.push('RÔLE SUGGÉRÉ : ' + p.role);
+    lignes.push('');
+    lignes.push('DÉTAIL DES RÉPONSES');
+    quiz.forEach((q, qi) => {
+      const opt = q.options[answers[qi]];
+      lignes.push('');
+      lignes.push('Q' + (qi + 1) + '. ' + q.q);
+      lignes.push('   Réponse : ' + opt.text);
+    });
+
+    const sujet = '[DISC] ' + nom + ' · Profil ' + dominant;
+    const corps = encodeURIComponent(lignes.join('\n'));
+    const destinataire = 't.mbi@ecole-schulz.ch';
+
+    window.location.href = 'mailto:' + destinataire + '?subject=' + encodeURIComponent(sujet) + '&body=' + corps;
+  }
+
+  /* ============================================================
+     RESET
+     ============================================================ */
+  function reset() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    quiz = buildQuiz();
+    renderQuiz();
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('sendBlock').style.display = 'none';
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ============================================================
+     INITIALISATION
+     ============================================================ */
+  renderQuiz();
+  updateProgress();
+</script>
+
+</body>
+</html>

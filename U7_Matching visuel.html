@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClubConnect. Démonstration du moteur de matching</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E;
+    --teal-bright: #5EEAD4;
+    --teal-dark: #0D5E57;
+    --navy: #16294D;
+    --border: #E7E9EE;
+    --muted: #64707E;
+    --ink: #12161C;
+    --page: #F1F5F4;
+    --white: #FFF;
+    --success: #2E7D32;
+    --warning: #E65100;
+    --error: #B71C1C;
+    --gold: #B8860B;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--page);
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  /* En-tête */
+  .demo-head { margin-bottom: 24px; }
+  .demo-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .demo-head h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .demo-head p {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.6;
+  }
+
+  /* Carte du membre courant */
+  .my-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--navy);
+    color: #fff;
+    padding: 18px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  .my-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #DDE3E6;
+  }
+  .my-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .my-info { flex: 1; min-width: 0; }
+  .my-role {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--teal-bright);
+    margin-bottom: 3px;
+  }
+  .my-info h2 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+  .my-info p {
+    font-size: 12px;
+    color: #8FA2BF;
+    line-height: 1.4;
+  }
+  .my-score { text-align: right; flex-shrink: 0; }
+  .my-score-value {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 26px;
+    color: var(--teal-bright);
+    line-height: 1;
+  }
+  .my-score-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #8FA2BF;
+    margin-top: 4px;
+  }
+
+  /* Carrousel */
+  .carousel {
+    position: relative;
+    height: 380px;
+    background: #0A0918;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .carousel-hint {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    z-index: 10;
+  }
+  .carousel-stage {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+  }
+
+  .match-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 140px;
+    height: 200px;
+    margin-left: -70px;
+    margin-top: -100px;
+    transform-style: preserve-3d;
+    transition: transform .6s ease, opacity .5s ease;
+    cursor: pointer;
+  }
+  .match-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform .7s cubic-bezier(.5,.02,.2,1);
+  }
+  .match-card.flipped .match-card-inner {
+    transform: rotateY(180deg);
+  }
+  .match-card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 10px;
+    background: var(--white);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .match-card-back {
+    background: var(--navy);
+    color: #fff;
+    transform: rotateY(180deg);
+    border: 1px solid #2B4272;
+  }
+
+  .match-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #DDE3E6;
+    flex-shrink: 0;
+  }
+  .match-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .match-name {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink);
+    text-align: center;
+  }
+  .match-type {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .match-score {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .match-score.ideal { color: var(--success); }
+  .match-score.strong { color: var(--warning); }
+  .match-score.weak { color: var(--error); }
+
+  .match-card-back .qr-box {
+    width: 70px;
+    height: 70px;
+    background: #fff;
+    border-radius: 3px;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--navy);
+  }
+  .match-card-back .contact {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--teal-bright);
+    text-align: center;
+    word-break: break-all;
+    line-height: 1.3;
+    padding: 0 6px;
+  }
+
+  .match-card.ideal .match-card-face:not(.match-card-back) {
+    border: 2px solid var(--success);
+  }
+  .match-card.sponsor .match-card-face:not(.match-card-back) {
+    border: 2px solid var(--gold);
+  }
+
+  /* Légende */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 14px 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-dot.ideal { background: var(--success); }
+  .legend-dot.strong { background: var(--warning); }
+  .legend-dot.weak { background: var(--error); }
+  .legend-dot.sponsor { background: var(--gold); }
+
+  /* Boutons */
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .btn {
+    padding: 12px 22px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border);
+  }
+  .btn-outline:hover { border-color: var(--muted); }
+  .btn-gold { background: var(--gold); color: #fff; }
+  .btn-gold:hover { background: #966D09; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* Explication */
+  .explain {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+  }
+  .explain h3 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .explain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .explain-item {
+    padding-left: 14px;
+    border-left: 2px solid var(--teal);
+  }
+  .explain-item h4 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .explain-item p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .explain-item code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: #F1F5F4;
+    color: var(--navy);
+    padding: 2px 6px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  @media (max-width: 640px) {
+    .my-card { flex-wrap: wrap; }
+    .my-score { text-align: left; width: 100%; margin-top: 8px; }
+    .carousel { height: 340px; }
+    .match-card { width: 120px; height: 175px; margin-left: -60px; margin-top: -87px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="demo-head">
+    <div class="demo-eyebrow">ClubConnect · Démonstration</div>
+    <h1>Le moteur de matching en action</h1>
+    <p>
+      Cliquez sur une carte pour la retourner. Lancez la recherche du meilleur
+      match ou activez le boost sponsor.
+    </p>
+  </div>
+
+  <div class="my-card">
+    <div class="my-avatar">
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" alt="">
+    </div>
+    <div class="my-info">
+      <div class="my-role">Membre · Concepteur</div>
+      <h2>Tatiana B.</h2>
+      <p>Je cherche un partenaire d'entraînement pour progresser en algorithmique.</p>
+    </div>
+    <div class="my-score">
+      <div class="my-score-value">92%</div>
+      <div class="my-score-label">Match global</div>
+    </div>
+  </div>
+
+  <div class="carousel" id="carousel">
+    <div class="carousel-hint">Cliquez sur une carte</div>
+    <div class="carousel-stage" id="carouselStage"></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot ideal"></span>
+      <span>Match idéal (90 à 100 %)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot strong"></span>
+      <span>Match fort (70 à 89 %)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot weak"></span>
+      <span>Match faible (moins de 70 %)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot sponsor"></span>
+      <span>Profil sponsorisé</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnMatch" onclick="trouverMatch()">Trouver mon match</button>
+    <button class="btn btn-gold" id="btnSponsor" onclick="activerBoost()">Activer le boost sponsor</button>
+    <button class="btn btn-outline" onclick="resetDemo()">Réinitialiser</button>
+  </div>
+
+  <div class="explain">
+    <h3>Ce qui se passe en Java</h3>
+    <div class="explain-grid">
+      <div class="explain-item">
+        <h4>Graphe des relations</h4>
+        <p>Chaque membre est un nœud, chaque relation une arête.</p>
+        <code>HashMap&lt;String, List&lt;String&gt;&gt;</code>
+      </div>
+      <div class="explain-item">
+        <h4>Parcours BFS</h4>
+        <p>On explore les amis d'amis avec une file et un ensemble.</p>
+        <code>Queue · HashSet</code>
+      </div>
+      <div class="explain-item">
+        <h4>Tri par priorité</h4>
+        <p>Les candidats sont classés par score de compatibilité.</p>
+        <code>PriorityQueue · Comparator</code>
+      </div>
+      <div class="explain-item">
+        <h4>Boost sponsor</h4>
+        <p>Un profil sponsorisé reçoit un bonus de score.</p>
+        <code>score += 1 000 000</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const membres = [
+    { id: 'm1', nom: 'Bob', type: 'Opérateur', score: 95, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80', email: 'bob@club.com', cat: 'ideal' },
+    { id: 'm2', nom: 'Charlie', type: 'Relationnel', score: 88, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80', email: 'charlie@club.com', cat: 'strong' },
+    { id: 'm3', nom: 'David', type: 'Exécuteur', score: 72, avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80', email: 'david@club.com', cat: 'strong' },
+    { id: 'm4', nom: 'Eve', type: 'Concepteur', score: 65, avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80', email: 'eve@club.com', cat: 'weak' },
+    { id: 'm5', nom: 'Frank', type: 'Opérateur', score: 50, avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80', email: 'frank@club.com', cat: 'weak' },
+    { id: 'm6', nom: 'Grace', type: 'Exécuteur', score: 45, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80', email: 'grace@club.com', cat: 'weak' },
+    { id: 'm7', nom: 'Heidi', type: 'Relationnel', score: 40, avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&q=80', email: 'heidi@club.com', cat: 'weak' },
+    { id: 'm8', nom: 'Ivan', type: 'Concepteur', score: 35, avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80', email: 'ivan@club.com', cat: 'weak' }
+  ];
+
+  const sponsor = {
+    id: 'sponsor',
+    nom: 'Sponsor',
+    type: 'Partenaire',
+    score: 100,
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80',
+    email: 'sponsor@club.com',
+    cat: 'sponsor'
+  };
+
+  const radius = 220;
+  const angleStep = (2 * Math.PI) / membres.length;
+  let rotation = 0;
+  let timer = null;
+  let boost = false;
+  let matchTrouve = false;
+
+  function render() {
+    const stage = document.getElementById('carouselStage');
+    stage.innerHTML = '';
+
+    membres.forEach((m) => {
+      const card = document.createElement('div');
+      card.className = 'match-card';
+      if (m.cat === 'ideal') card.classList.add('ideal');
+      card.dataset.id = m.id;
+
+      const scoreClass = m.cat === 'ideal' ? 'ideal' : m.cat === 'strong' ? 'strong' : 'weak';
+
+      card.innerHTML = `
+        <div class="match-card-inner">
+          <div class="match-card-face">
+            <div class="match-avatar"><img src="${m.avatar}" alt=""></div>
+            <div class="match-name">${m.nom}</div>
+            <div class="match-type">${m.type}</div>
+            <div class="match-score ${scoreClass}">${m.score} %</div>
+          </div>
+          <div class="match-card-face match-card-back">
+            <div class="qr-box">QR</div>
+            <div class="contact">${m.email}</div>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        card.classList.toggle('flipped');
+      });
+
+      stage.appendChild(card);
+    });
+
+    positionCards();
+    startRotation();
+  }
+
+  function positionCards() {
+    document.querySelectorAll('.match-card').forEach((card, i) => {
+      const angle = i * angleStep + rotation * Math.PI / 180;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${angle * 180 / Math.PI}deg)`;
+    });
+  }
+
+  function startRotation() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(() => {
+      if (matchTrouve || boost) return;
+      rotation += 1.1;
+      positionCards();
+    }, 40);
+  }
+
+  function stopRotation() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  function trouverMatch() {
+    if (boost) {
+      alert('Réinitialisez avant de relancer la recherche.');
+      return;
+    }
+    matchTrouve = true;
+    stopRotation();
+
+    const meilleur = membres.reduce((best, m) => m.score > best.score ? m : best, membres[0]);
+
+    document.querySelectorAll('.match-card').forEach(card => {
+      if (card.dataset.id === meilleur.id) {
+        card.style.transform = `translateX(0px) translateZ(${radius}px) rotateY(0deg)`;
+        card.style.opacity = '1';
+      } else {
+        card.style.opacity = '0.25';
+      }
+    });
+
+    setTimeout(() => {
+      alert('Meilleur match : ' + meilleur.nom + ' (' + meilleur.type + ')\nScore : ' + meilleur.score + ' %');
+    }, 500);
+  }
+
+  function activerBoost() {
+    if (boost) return;
+    boost = true;
+    matchTrouve = false;
+    stopRotation();
+
+    const stage = document.getElementById('carouselStage');
+
+    document.querySelectorAll('.match-card').forEach(card => {
+      card.style.opacity = '0.2';
+    });
+
+    const card = document.createElement('div');
+    card.className = 'match-card sponsor';
+    card.dataset.id = sponsor.id;
+    card.style.transform = `translateX(0px) translateZ(${radius + 40}px) rotateY(0deg)`;
+    card.style.zIndex = '200';
+
+    card.innerHTML = `
+      <div class="match-card-inner">
+        <div class="match-card-face">
+          <div class="match-avatar"><img src="${sponsor.avatar}" alt=""></div>
+          <div class="match-name">${sponsor.nom}</div>
+          <div class="match-type">${sponsor.type}</div>
+          <div class="match-score ideal">${sponsor.score} %</div>
+        </div>
+        <div class="match-card-face match-card-back">
+          <div class="qr-box">QR</div>
+          <div class="contact">${sponsor.email}</div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      card.classList.toggle('flipped');
+    });
+
+    stage.appendChild(card);
+
+    document.getElementById('btnMatch').disabled = true;
+  }
+
+  function resetDemo() {
+    boost = false;
+    matchTrouve = false;
+    rotation = 0;
+    document.getElementById('btnMatch').disabled = false;
+    render();
+  }
+
+  render();
+</script>
+
+</body>
+</html>
