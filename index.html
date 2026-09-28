@@ -755,66 +755,19 @@ window.addEventListener('scroll', () => {
 });
 
 
-
 /* ============================================================================
    ⚙️  TABLEAU DES RESSOURCES — LE SEUL ENDROIT À MODIFIER
    ----------------------------------------------------------------------------
    Pour ajouter une nouvelle page (route GitHub), copiez/collez un bloc
    { ... }, et renseignez :
-     • cat    : nom du groupe (ex. « Ateliers », « Évaluation », « Projet »)
+     • cat    : nom du groupe (ex. « Ateliers », « Quiz de séance »)
      • titre  : titre affiché sur la carte
      • desc   : une phrase de description
      • url    : nom du fichier .html (ex. "U7_MaPage.html")
-     • icone  : un symbole court (◇ ◆ ○ ● □ ■ △ ▲ ◈)
+     • icone  : un symbole court (◇ ◆ ○ ● □ ■ △ ▲ ◈ ◉ ▽)
      • accent : "teal" · "navy" · "gold" · "violet" · "blue" · "rust"
-     • badge  : (optionnel) étiquette courte, ex. "Nouveau", "Obligatoire"
+     • badge  : (optionnel) étiquette courte, ex. "Nouveau", "Séance 3"
      • url vide ou "#" → carte « À venir » désactivée
-   L'ordre d'apparition des groupes suit leur première apparition ci-dessous.
-   ============================================================================ */
-const RESSOURCES = [
-
-  /* --------------------------- ÉVALUATION --------------------------- */
-  {
-    cat:    "Évaluation",
-    titre:  "Test de positionnement",
-    desc:   "20 questions pour évaluer votre niveau de départ sur les cycles de vie, la faisabilité et la documentation.",
-    url:    "U7_POSITIONNEMENT.html",
-    icone:  "◆",
-    accent: "teal",
-    badge:  "Diagnostic"
-  },
-  {
-    cat:    "Évaluation",
-    titre:  "Test DISC — Formation des groupes",
-    desc:   "24 questions pour mesurer vos tendances Dominance, Influence, Stabilité, Conformité et composer les groupes.",
-    url:    "U7_DISC.html",
-    icone:  "◇",
-    accent: "blue",
-    badge:  "Groupes"
-  },
-
-  /* --------------------------- ATELIERS --------------------------- */
-  {
-    cat:    "Ateliers",
-    titre:  "Moteur de matching ClubConnect",
-    desc:   "Démonstration visuelle du moteur de recommandation : graphe de relations, parcours BFS, boost sponsor.",
-    url:    "U7_Matching visuel.html",
-    icone:  "◈",
-    accent: "navy"
-  },
-
-  /* --------------------------- PROJET --------------------------- */
-  {
-    cat:    "Projet",
-    titre:  "Cahier des charges ClubConnect",
-    desc:   "Modèle et trame officielle du dossier de gestion de projet, à compléter tout au long de l'année.",
-    url:    "#",
-    icone:  "▢",
-    accent: "gold",
-    badge:  "À venir"
-  }
-/* ============================================================================
-   ⚙️  TABLEAU DES RESSOURCES — LE SEUL ENDROIT À MODIFIER
    ============================================================================ */
 const RESSOURCES = [
 
@@ -858,12 +811,32 @@ const RESSOURCES = [
     badge:  "Séance 2"
   },
 
+  /* --------------------------- FICHES MODÈLES --------------------------- */
+  {
+    cat:    "Fiches modèles",
+    titre:  "Le modèle en Spirale",
+    desc:   "Quiz court : gestion des risques et contexte d'usage du modèle en Spirale.",
+    url:    "U7_QUIZ_SPIRALE.html",
+    icone:  "◉",
+    accent: "violet",
+    badge:  "Spirale"
+  },
+  {
+    cat:    "Fiches modèles",
+    titre:  "Le modèle en V",
+    desc:   "9 questions (QCM + réflexion) sur la logique séquentielle, les branches gauche/droite et l'histoire du modèle en V.",
+    url:    "U7_QUIZ_VMODELE.html",
+    icone:  "▽",
+    accent: "blue",
+    badge:  "V-Model"
+  },
+
   /* --------------------------- ATELIERS --------------------------- */
   {
     cat:    "Ateliers",
     titre:  "Moteur de matching ClubConnect",
     desc:   "Démonstration visuelle du moteur de recommandation : graphe de relations, parcours BFS, boost sponsor.",
-    url:    "U7_Matching visuel.html",
+    url:    "U7_MATCHING.html",
     icone:  "◈",
     accent: "navy"
   },
@@ -878,25 +851,7 @@ const RESSOURCES = [
     accent: "gold",
     badge:  "À venir"
   }
-/* --------------------------- FICHES MODÈLES --------------------------- */
-{
-  cat:    "Fiches modèles",
-  titre:  "Le modèle en Spirale",
-  desc:   "Quiz court : gestion des risques et contexte d'usage du modèle en Spirale.",
-  url:    "U7_QUIZ_SPIRALE.html",
-  icone:  "◉",
-  accent: "violet",
-  badge:  "Spirale"
-},
-{
-  cat:    "Fiches modèles",
-  titre:  "Le modèle en V",
-  desc:   "9 questions (QCM + réflexion) sur la logique séquentielle, les branches gauche/droite et l'histoire du modèle en V.",
-  url:    "U7_QUIZ_VMODELE.html",
-  icone:  "▽",
-  accent: "blue",
-  badge:  "V-Model"
-}
+
   /* ------------------------------------------------------------------
      👉 AJOUTEZ VOS PROCHAINES RESSOURCES ICI, SUR CE MODÈLE :
 
@@ -911,21 +866,6 @@ const RESSOURCES = [
      },
      ------------------------------------------------------------------ */
 ];
-  /* ------------------------------------------------------------------
-     👉 AJOUTEZ VOS PROCHAINES RESSOURCES ICI, SUR CE MODÈLE :
-
-     {
-       cat:    "Ateliers",
-       titre:  "Comparateur de cycles de vie",
-       desc:   "Waterfall, Agile, Scrum, Spirale, RAD : avantages, limites et contexte d'usage.",
-       url:    "U7_Comparateur.html",
-       icone:  "△",
-       accent: "violet",
-       badge:  "Nouveau"
-     },
-     ------------------------------------------------------------------ */
-];
-
 
 
 /* ============================================================================
@@ -935,7 +875,6 @@ function renderRessources() {
   const container = document.getElementById('ressourcesContainer');
   if (!container) return;
 
-  // Regrouper en conservant l'ordre d'apparition
   const groupes = {};
   const ordre = [];
   RESSOURCES.forEach(r => {
@@ -993,6 +932,7 @@ function renderRessources() {
 
 renderRessources();
 </script>
+
 
 </body>
 </html>
