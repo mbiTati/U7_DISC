@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7. Quiz — Le modèle en V</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>7</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F766E; --teal-bright: #5EEAD4; --teal-dark: #0D5E57;
+    --navy: #16294D; --border: #E7E9EE; --muted: #64707E;
+    --ink: #12161C; --page: #F1F5F4; --white: #FFF;
+    --success: #2E7D32; --warning: #E65100; --error: #B71C1C;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans); font-size: 16px; line-height: 1.65;
+    color: var(--ink); background: var(--page);
+    -webkit-font-smoothing: antialiased; padding: 24px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .head { margin-bottom: 28px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 12px;
+  }
+  .head h1 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin-bottom: 12px;
+  }
+  .head p { font-size: 15px; color: var(--muted); max-width: 640px; line-height: 1.65; }
+  .head-meta {
+    display: flex; gap: 24px; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--border); font-family: var(--mono);
+    font-size: 12px; color: var(--muted); flex-wrap: wrap;
+  }
+  .head-meta strong { color: var(--ink); font-weight: 500; }
+
+  .identity {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 20px 22px; margin-bottom: 24px;
+  }
+  .identity h2 { font-family: var(--sans); font-weight: 500; font-size: 15px; margin-bottom: 14px; }
+  .identity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field label {
+    display: block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--sans); font-size: 14px;
+    background: var(--white); color: var(--ink); transition: border-color .2s;
+  }
+  .field input:focus { outline: none; border-color: var(--teal); }
+
+  .progress {
+    position: sticky; top: 12px; background: var(--white);
+    border: 1px solid var(--border); border-radius: 4px; padding: 10px 16px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 14px; z-index: 50;
+  }
+  .progress-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  .progress-track { flex: 1; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); width: 0%; transition: width .3s; }
+  .progress-count { font-family: var(--mono); font-size: 12px; color: var(--teal); font-weight: 500; }
+
+  .section-block {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 20px 22px; margin-bottom: 18px;
+  }
+  .section-block h2 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .question-block { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 0; }
+  .question-block h3 {
+    font-family: var(--sans); font-weight: 500; font-size: 14px;
+    margin-bottom: 12px; line-height: 1.5;
+  }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .options.single { grid-template-columns: 1fr; }
+  .options.triple { grid-template-columns: 1fr; }
+  .option {
+    padding: 10px 12px; background: var(--white); border: 1px solid var(--border);
+    border-radius: 3px; font-size: 13px; cursor: pointer;
+    transition: all .15s; line-height: 1.5; color: var(--ink);
+  }
+  .option:hover { border-color: var(--muted); }
+  .option.selected { border-color: var(--teal); background: #E0F2F1; }
+  .option.correct { border-color: var(--success); background: #E8F5E9; }
+  .option.wrong { border-color: var(--error); background: #FFEBEE; }
+
+  .free-text {
+    width: 100%; padding: 12px; border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--sans); font-size: 14px;
+    line-height: 1.6; background: var(--white); color: var(--ink);
+    resize: vertical; min-height: 90px; transition: border-color .2s;
+  }
+  .free-text:focus { outline: none; border-color: var(--teal); }
+
+  .btn {
+    display: inline-block; padding: 12px 24px; border: 1px solid transparent;
+    border-radius: 3px; font-family: var(--sans); font-weight: 500;
+    font-size: 14px; letter-spacing: .02em; cursor: pointer;
+    transition: background .2s, border-color .2s; text-decoration: none;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--border); }
+  .btn-outline:hover { border-color: var(--muted); }
+  .btn-light { background: #fff; color: var(--teal); }
+  .btn-light:hover { background: #E0F2F1; }
+
+  .actions {
+    display: flex; gap: 10px; justify-content: flex-end;
+    margin-top: 20px; flex-wrap: wrap;
+  }
+
+  .result {
+    display: none; background: var(--white); border: 1px solid var(--border);
+    border-radius: 4px; padding: 28px; margin-top: 24px;
+  }
+  .result.show { display: block; }
+  .result-header {
+    text-align: center; padding-bottom: 24px;
+    border-bottom: 1px solid var(--border); margin-bottom: 24px;
+  }
+  .result-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+  }
+  .result-score {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 72px; line-height: 1; margin-bottom: 12px;
+  }
+  .result-score.excellent { color: var(--success); }
+  .result-score.bon { color: var(--teal); }
+  .result-score.moyen { color: var(--warning); }
+  .result-score.faible { color: var(--error); }
+  .result-message { font-size: 16px; color: var(--ink); font-weight: 500; margin-bottom: 8px; }
+  .result-detail {
+    font-size: 14px; color: var(--muted); line-height: 1.65;
+    max-width: 600px; margin: 0 auto;
+  }
+
+  .send-block {
+    background: var(--navy); color: #fff; padding: 24px;
+    border-radius: 4px; margin-top: 24px;
+  }
+  .send-block h3 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 20px; margin-bottom: 10px;
+  }
+  .send-block p { font-size: 13px; color: #C4CFE0; line-height: 1.6; margin-bottom: 16px; }
+  .send-note { font-family: var(--mono); font-size: 11px; color: #8FA2BF; margin-top: 12px; }
+
+  footer {
+    text-align: center; margin-top: 40px; font-family: var(--mono);
+    font-size: 11px; color: var(--muted); letter-spacing: .04em;
+  }
+  @media (max-width: 768px) {
+    .identity-grid { grid-template-columns: 1fr; }
+    .options { grid-template-columns: 1fr; }
+    .result-score { font-size: 56px; }
+    .actions { justify-content: stretch; }
+    .actions .btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">École Schulz Genève · Unit 7 · Software Development Lifecycles</div>
+    <h1>Le modèle en V</h1>
+    <p>
+      Neuf questions pour vérifier votre compréhension du modèle en V : sa logique
+      séquentielle, sa place parmi les autres modèles, son histoire et sa structure
+      en deux branches.
+    </p>
+    <div class="head-meta">
+      <span><strong>9</strong> questions</span>
+      <span><strong>5</strong> QCM · <strong>4</strong> réflexions</span>
+      <span><strong>~15 min</strong> durée moyenne</span>
+    </div>
+  </div>
+
+  <div class="identity">
+    <h2>Avant de commencer</h2>
+    <div class="identity-grid">
+      <div class="field">
+        <label>Nom et prénom</label>
+        <input type="text" id="studentName" placeholder="par exemple : Tatiana B." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Groupe (optionnel)</label>
+        <input type="text" id="studentGroup" placeholder="par exemple : Groupe 1" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="progress">
+    <span class="progress-label">Progression</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 9</span>
+  </div>
+
+  <!-- PARTIE 1 : QCM -->
+  <div class="section-block">
+    <h2>Partie 1 · Quiz express</h2>
+
+    <div class="question-block">
+      <h3>1. Le modèle en V est adapté pour les projets :</h3>
+      <div class="options triple">
+        <div class="option" data-q="1" data-o="0">a) Instables</div>
+        <div class="option" data-q="1" data-o="1">b) Flexibles</div>
+        <div class="option" data-q="1" data-o="2">c) Qui nécessitent un résultat de qualité</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <h3>3. Le modèle en V est :</h3>
+      <div class="options">
+        <div class="option" data-q="3" data-o="0">a) Séquentiel</div>
+        <div class="option" data-q="3" data-o="1">b) Itératif</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <h3>4. La phase de test du projet se situe :</h3>
+      <div class="options triple">
+        <div class="option" data-q="4" data-o="0">a) À la fin de la conception</div>
+        <div class="option" data-q="4" data-o="1">b) À la fin de la récupération des requis</div>
+        <div class="option" data-q="4" data-o="2">c) À la suite de chaque étape effectuée</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <h3>5. Le modèle en V avantage :</h3>
+      <div class="options">
+        <div class="option" data-q="5" data-o="0">a) Les petits projets</div>
+        <div class="option" data-q="5" data-o="1">b) Les projets importants</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <h3>6. Par rapport aux autres modèles, le modèle en V est :</h3>
+      <div class="options">
+        <div class="option" data-q="6" data-o="0">a) Rapide</div>
+        <div class="option" data-q="6" data-o="1">b) Lent</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <h3>7. Quel informaticien est à l'origine du modèle en V ?</h3>
+      <div class="options">
+        <div class="option" data-q="7" data-o="0">a) Barry Boehm</div>
+        <div class="option" data-q="7" data-o="1">b) Herbert D. Benington</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTIE 2 : RÉFLEXION -->
+  <div class="section-block">
+    <h2>Partie 2 · Questions de réflexion</h2>
+
+    <div class="question-block">
+      <h3>2. Qu'est-ce qui différencie le modèle en V du modèle Waterfall, Agile ou Spirale ?</h3>
+      <textarea class="free-text" id="reflection2" placeholder="Deux à trois phrases suffisent. Comparez au moins avec un autre modèle." oninput="updateProgress()"></textarea>
+    </div>
+
+    <div class="question-block">
+      <h3>8. À quoi correspond le côté gauche du modèle en V ?</h3>
+      <textarea class="free-text" id="reflection8" placeholder="Décrivez les phases que l'on trouve à gauche du V." oninput="updateProgress()"></textarea>
+    </div>
+
+    <div class="question-block">
+      <h3>9. À quoi correspond le côté droit du modèle en V ?</h3>
+      <textarea class="free-text" id="reflection9" placeholder="Décrivez les phases que l'on trouve à droite du V." oninput="updateProgress()"></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-outline" onclick="reset()">Réinitialiser</button>
+    <button class="btn btn-primary" id="btnResult" onclick="afficherResultat()" disabled>Corriger mon quiz</button>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="send-block" id="sendBlock" style="display:none;">
+    <h3>Envoyer mes résultats</h3>
+    <p>
+      Cliquez sur le bouton pour envoyer vos réponses à l'enseignante.
+      Un client mail s'ouvrira avec le message pré-rempli.
+    </p>
+    <button class="btn btn-light" onclick="envoyerResultats()">Envoyer par email</button>
+    <div class="send-note">Destinataire : t.mbi@ecole-schulz.ch</div>
+  </div>
+
+  <footer>
+    École Schulz Genève · Unit 7 · Quiz Modèle en V
+  </footer>
+</div>
+
+<script>
+  /* Réponses correctes (index 0-based dans les options) */
+  const corrections = {
+    1: 2,   // c — Qui nécessitent un résultat de qualité
+    3: 0,   // a — Séquentiel
+    4: 2,   // c — À la suite de chaque étape effectuée
+    5: 1,   // b — Les projets importants
+    6: 1,   // b — Lent
+    7: 1    // b — Herbert D. Benington
+  };
+
+  const QCM_LIST = [1, 3, 4, 5, 6, 7];
+  const REFLEXION_LIST = [2, 8, 9];
+
+  const answers = {};
+
+  document.querySelectorAll('.option').forEach(el => {
+    el.addEventListener('click', () => {
+      const q = el.dataset.q;
+      const o = parseInt(el.dataset.o);
+      answers[q] = o;
+      document.querySelectorAll(`.option[data-q="${q}"]`).forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    let reflectionsDone = 0;
+    REFLEXION_LIST.forEach(n => {
+      const el = document.getElementById('reflection' + n);
+      if (el && el.value.trim().length >= 20) reflectionsDone++;
+    });
+
+    const qcmDone = Object.keys(answers).length;
+    const total = QCM_LIST.length + REFLEXION_LIST.length;
+    const done = reflectionsDone + qcmDone;
+
+    document.getElementById('progressCount').textContent = done + ' / ' + total;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    document.getElementById('btnResult').disabled = done !== total;
+  }
+
+  document.querySelectorAll('.free-text').forEach(t => {
+    t.addEventListener('input', updateProgress);
+  });
+
+  function corriger() {
+    let score = 0;
+    let detail = [];
+    QCM_LIST.forEach(q => {
+      const chosen = answers[q];
+      const correct = chosen === corrections[q];
+      if (correct) score++;
+      detail.push({ q: q, chosen: chosen, correct: correct });
+    });
+    return { score, total: QCM_LIST.length, detail };
+  }
+
+  function afficherResultat() {
+    const { score, total, detail } = corriger();
+    const percent = Math.round((score / total) * 100);
+
+    let level, message, advice;
+    if (percent === 100) {
+      level = 'excellent'; message = 'Parfait';
+      advice = 'Vous maîtrisez le modèle en V. Vous êtes prêt à le comparer aux autres cycles de vie.';
+    } else if (percent >= 60) {
+      level = 'bon'; message = 'Bon niveau';
+      advice = 'Les notions principales sont acquises. Relisez les questions manquées.';
+    } else if (percent >= 40) {
+      level = 'moyen'; message = 'Niveau intermédiaire';
+      advice = 'Certaines notions sont fragiles. Reprenez la fiche sur le modèle en V.';
+    } else {
+      level = 'faible'; message = 'Niveau à renforcer';
+      advice = 'Les bases doivent être consolidées. Reprenez la fiche complète sur le modèle en V.';
+    }
+
+    // Détail QCM
+    let detailHtml = '<div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">';
+    detailHtml += '<h4 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Détail du QCM</h4>';
+    detail.forEach(d => {
+      const chosenText = ['a', 'b', 'c'][d.chosen] || 'Non répondu';
+      detailHtml += `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span style="color:${d.correct ? 'var(--success)' : 'var(--error)'};font-family:var(--mono);">
+          ${d.correct ? '✓' : '✗'}
+        </span>
+        Question ${d.q} · réponse ${chosenText}
+      </div>`;
+    });
+    detailHtml += '</div>';
+
+    // Réflexions
+    let reflectionHtml = '<div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">';
+    reflectionHtml += '<h4 style="font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Vos réponses de réflexion</h4>';
+    REFLEXION_LIST.forEach(n => {
+      const val = document.getElementById('reflection' + n).value.trim();
+      reflectionHtml += `<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <div style="font-weight:500;margin-bottom:4px;">Question ${n}</div>
+        <div style="color:var(--muted);line-height:1.55;">${val || '<em>Non répondu</em>'}</div>
+      </div>`;
+    });
+    reflectionHtml += '</div>';
+
+    const result = document.getElementById('result');
+    result.innerHTML = `
+      <div class="result-header">
+        <div class="result-eyebrow">Quiz Modèle en V</div>
+        <div class="result-score ${level}">${score}/${total}</div>
+        <div class="result-message">${message}</div>
+        <div class="result-detail">${advice}</div>
+      </div>
+      ${detailHtml}
+      ${reflectionHtml}
+    `;
+    result.classList.add('show');
+    document.getElementById('sendBlock').style.display = 'block';
+
+    Object.keys(corrections).forEach(q => {
+      document.querySelectorAll(`.option[data-q="${q}"]`).forEach(opt => {
+        const o = parseInt(opt.dataset.o);
+        opt.classList.remove('correct', 'wrong');
+        if (o === corrections[q]) opt.classList.add('correct');
+        else if (answers[q] === o) opt.classList.add('wrong');
+      });
+    });
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function envoyerResultats() {
+    const nom = document.getElementById('studentName').value.trim();
+    const groupe = document.getElementById('studentGroup').value.trim();
+    if (!nom) {
+      alert('Renseignez votre nom avant d\'envoyer.');
+      document.getElementById('studentName').focus();
+      return;
+    }
+
+    const { score, total, detail } = corriger();
+    const percent = Math.round((score / total) * 100);
+
+    const lignes = [];
+    lignes.push('RÉSULTATS DU QUIZ — MODÈLE EN V');
+    lignes.push('École Schulz Genève · Unit 7');
+    lignes.push('');
+    lignes.push('Nom : ' + nom);
+    if (groupe) lignes.push('Groupe : ' + groupe);
+    lignes.push('Date : ' + new Date().toLocaleString('fr-FR'));
+    lignes.push('');
+    lignes.push('SCORE QCM : ' + score + '/' + total + ' (' + percent + '%)');
+    lignes.push('');
+    lignes.push('DÉTAIL DU QCM');
+    detail.forEach(d => {
+      const chosenText = ['a', 'b', 'c'][d.chosen] || 'Non répondu';
+      lignes.push('  Question ' + d.q + ' : réponse ' + chosenText + ' ' + (d.correct ? '(correcte)' : '(incorrecte)'));
+    });
+    lignes.push('');
+    lignes.push('RÉPONSES DE RÉFLEXION');
+    REFLEXION_LIST.forEach(n => {
+      const val = document.getElementById('reflection' + n).value.trim();
+      lignes.push('');
+      lignes.push('Question ' + n + ' :');
+      lignes.push(val || '(non répondu)');
+    });
+
+    const sujet = '[QUIZ-VMODELE] ' + nom + ' · ' + score + '/' + total;
+    const corps = encodeURIComponent(lignes.join('\n'));
+    window.location.href = 'mailto:t.mbi@ecole-schulz.ch?subject=' + encodeURIComponent(sujet) + '&body=' + corps;
+  }
+
+  function reset() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected', 'correct', 'wrong'));
+    document.querySelectorAll('.free-text').forEach(t => t.value = '');
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('sendBlock').style.display = 'none';
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
