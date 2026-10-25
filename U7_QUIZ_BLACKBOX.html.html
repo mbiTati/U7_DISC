@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7. Quiz — Tests en Boîte Noire</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>7</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:#0F766E; --teal-bright:#5EEAD4; --teal-dark:#0D5E57;
+    --navy:#16294D; --border:#E7E9EE; --muted:#64707E;
+    --ink:#12161C; --page:#F1F5F4; --white:#FFF;
+    --success:#2E7D32; --warning:#E65100; --error:#B71C1C;
+    --serif:'Fraunces', Georgia, serif;
+    --sans:'DM Sans', system-ui, sans-serif;
+    --mono:'JetBrains Mono', monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family:var(--sans); font-size:16px; line-height:1.65;
+    color:var(--ink); background:var(--page);
+    -webkit-font-smoothing:antialiased; padding:24px;
+  }
+  .wrap { max-width:900px; margin:0 auto; }
+
+  .head { margin-bottom:28px; }
+  .eyebrow {
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:12px;
+  }
+  .head h1 {
+    font-family:var(--serif); font-style:italic; font-weight:500;
+    font-size:clamp(28px,5vw,40px); line-height:1.15; margin-bottom:12px;
+  }
+  .head p { font-size:15px; color:var(--muted); max-width:640px; line-height:1.65; }
+  .head-meta {
+    display:flex; gap:24px; margin-top:16px; padding-top:16px;
+    border-top:1px solid var(--border); font-family:var(--mono);
+    font-size:12px; color:var(--muted); flex-wrap:wrap;
+  }
+  .head-meta strong { color:var(--ink); font-weight:500; }
+
+  .identity {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:4px; padding:20px 22px; margin-bottom:24px;
+  }
+  .identity h2 { font-family:var(--sans); font-weight:500; font-size:15px; margin-bottom:14px; }
+  .identity-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .field label {
+    display:block; font-family:var(--mono); font-size:10px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:6px;
+  }
+  .field input {
+    width:100%; padding:10px 12px; border:1px solid var(--border);
+    border-radius:3px; font-family:var(--sans); font-size:14px;
+    background:var(--white); color:var(--ink); transition:border-color .2s;
+  }
+  .field input:focus { outline:none; border-color:var(--teal); }
+
+  .progress {
+    position:sticky; top:12px; background:var(--white);
+    border:1px solid var(--border); border-radius:4px;
+    padding:10px 16px; margin-bottom:20px;
+    display:flex; align-items:center; gap:14px; z-index:50;
+  }
+  .progress-label {
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted); white-space:nowrap;
+  }
+  .progress-track { flex:1; height:6px; background:var(--border); border-radius:999px; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--teal); width:0%; transition:width .3s; }
+  .progress-count { font-family:var(--mono); font-size:12px; color:var(--teal); font-weight:500; }
+
+  .section-block {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:4px; padding:20px 22px; margin-bottom:18px;
+  }
+  .section-block h2 {
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:16px;
+    padding-bottom:10px; border-bottom:1px solid var(--border);
+  }
+  .question-block { padding:14px 0; border-bottom:1px solid var(--border); }
+  .question-block:last-child { border-bottom:none; padding-bottom:0; }
+  .question-block h3 {
+    font-family:var(--sans); font-weight:500; font-size:14px;
+    margin-bottom:12px; line-height:1.5;
+  }
+  
+  .options { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .options.single { grid-template-columns:1fr; }
+  .option {
+    padding:10px 12px; background:var(--white); border:1px solid var(--border);
+    border-radius:3px; font-size:13px; cursor:pointer;
+    transition:all .15s; line-height:1.5; color:var(--ink);
+  }
+  .option:hover { border-color:var(--muted); }
+  .option.correct { border-color:var(--success); background:#E8F5E9; }
+  .option.wrong { border-color:var(--error); background:#FFEBEE; }
+
+  .feedback {
+    margin-top:12px; padding:12px 16px;
+    background:#FAFBFC; border-left:3px solid var(--teal);
+    border-radius:3px; font-size:13px; line-height:1.6;
+    color:var(--muted); display:none;
+  }
+  .feedback.show { display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .feedback strong { color:var(--ink); font-weight:500; }
+  .feedback .label {
+    font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+    text-transform:uppercase; display:block; margin-bottom:4px;
+  }
+  .feedback .label.ok { color:var(--success); }
+  .feedback .label.ko { color:var(--error); }
+
+  .btn {
+    display:inline-block; padding:12px 24px;
+    border:1px solid transparent; border-radius:3px;
+    font-family:var(--sans); font-weight:500; font-size:14px;
+    letter-spacing:.02em; cursor:pointer;
+    transition:background .2s, border-color .2s; text-decoration:none;
+  }
+  .btn-primary { background:var(--teal); color:#fff; }
+  .btn-primary:hover { background:var(--teal-dark); }
+  .btn-outline { background:transparent; color:var(--ink); border-color:var(--border); }
+  .btn-outline:hover { border-color:var(--muted); }
+  .btn-light { background:#fff; color:var(--teal); }
+  .btn-light:hover { background:#E0F2F1; }
+
+  .actions {
+    display:flex; gap:10px; justify-content:flex-end;
+    margin-top:20px; flex-wrap:wrap;
+  }
+
+  .send-block {
+    background:var(--navy); color:#fff; padding:24px;
+    border-radius:4px; margin-top:24px; display:none;
+  }
+  .send-block h3 {
+    font-family:var(--serif); font-style:italic; font-weight:500;
+    font-size:20px; margin-bottom:10px;
+  }
+  .send-block p { font-size:13px; color:#C4CFE0; line-height:1.6; margin-bottom:16px; }
+  .send-note { font-family:var(--mono); font-size:11px; color:#8FA2BF; margin-top:12px; }
+
+  footer {
+    text-align:center; margin-top:40px; font-family:var(--mono);
+    font-size:11px; color:var(--muted); letter-spacing:.04em;
+  }
+
+  @media (max-width:768px) {
+    .identity-grid { grid-template-columns:1fr; }
+    .options { grid-template-columns:1fr; }
+    .actions { justify-content:stretch; }
+    .actions .btn { flex:1; text-align:center; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">École Schulz Genève · Unit 7</div>
+    <h1>Quiz — Tests en Boîte Noire</h1>
+    <p>
+      Quatre questions pour vérifier votre compréhension des tests fonctionnels et
+      de la méthode « boîte noire ». La correction s'affiche immédiatement après
+      chaque clic.
+    </p>
+    <div class="head-meta">
+      <span><strong>4</strong> questions</span>
+      <span><strong>~5 min</strong> durée moyenne</span>
+    </div>
+  </div>
+
+  <div class="identity">
+    <h2>Avant de commencer</h2>
+    <div class="identity-grid">
+      <div class="field">
+        <label>Nom et prénom</label>
+        <input type="text" id="studentName" placeholder="par exemple : Tatiana B." autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Groupe (optionnel)</label>
+        <input type="text" id="studentGroup" placeholder="par exemple : Groupe 1" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="progress">
+    <span class="progress-label">Progression</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 4</span>
+  </div>
+
+  <div class="section-block">
+    <h2>Quiz · Boîte Noire</h2>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <h3>1. Qu'est-ce qu'un test en boîte noire ?</h3>
+      <div class="options">
+        <div class="option" data-q="1" data-o="0">A. Un test qui analyse le code source</div>
+        <div class="option" data-q="1" data-o="1">B. Un test qui vérifie le comportement du logiciel sans connaître son fonctionnement interne</div>
+        <div class="option" data-q="1" data-o="2">C. Un test qui mesure uniquement la vitesse du logiciel</div>
+        <div class="option" data-q="1" data-o="3">D. Un test qui modifie le programme</div>
+      </div>
+      <div class="feedback" id="feedback-1"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <h3>2. Quel est l'objectif principal d'un test fonctionnel ?</h3>
+      <div class="options">
+        <div class="option" data-q="2" data-o="0">A. Vérifier que les fonctions du logiciel répondent aux exigences</div>
+        <div class="option" data-q="2" data-o="1">B. Modifier le code source</div>
+        <div class="option" data-q="2" data-o="2">C. Tester uniquement le matériel informatique</div>
+        <div class="option" data-q="2" data-o="3">D. Vérifier uniquement la couleur de l'interface</div>
+      </div>
+      <div class="feedback" id="feedback-2"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <h3>3. Un test en boîte noire peut-il être réalisé sans avoir accès au code source ?</h3>
+      <div class="options">
+        <div class="option" data-q="3" data-o="0">A. Vrai</div>
+        <div class="option" data-q="3" data-o="1">B. Faux</div>
+      </div>
+      <div class="feedback" id="feedback-3"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <h3>4. Un utilisateur saisit un mot de passe incorrect et le logiciel affiche « Mot de passe incorrect ». Que vérifie principalement ce test ?</h3>
+      <div class="options">
+        <div class="option" data-q="4" data-o="0">A. Le fonctionnement d'une fonctionnalité</div>
+        <div class="option" data-q="4" data-o="1">B. La structure du code source</div>
+        <div class="option" data-q="4" data-o="2">C. La température du processeur</div>
+        <div class="option" data-q="4" data-o="3">D. La vitesse de connexion Internet</div>
+      </div>
+      <div class="feedback" id="feedback-4"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-outline" onclick="reset()">Réinitialiser</button>
+    <button class="btn btn-primary" onclick="envoyerResultats()">Envoyer mes réponses</button>
+  </div>
+
+  <div class="send-block" id="sendBlock">
+    <h3>Envoyer mes résultats</h3>
+    <p>
+      Cliquez sur le bouton pour envoyer vos réponses à l'enseignante.
+      Un client mail s'ouvrira avec le message pré-rempli.
+    </p>
+    <button class="btn btn-light" onclick="envoyerResultats()">Envoyer par email</button>
+    <div class="send-note">Destinataire : t.mbi@ecole-schulz.ch</div>
+  </div>
+
+  <footer>
+    École Schulz Genève · Unit 7 · Quiz Boîte Noire
+  </footer>
+</div>
+
+<script>
+/* ============================================================================
+   CORRECTIONS ET EXPLICATIONS
+   ============================================================================ */
+const CORRECTIONS = {
+  1: { reponse: 1, labels: ["A. Un test qui analyse le code source", "B. Un test qui vérifie le comportement du logiciel sans connaître son fonctionnement interne", "C. Un test qui mesure uniquement la vitesse du logiciel", "D. Un test qui modifie le programme"], explication: "Le test en boîte noire se concentre sur les entrées et les sorties, sans examiner la structure interne du code (qui relève de la boîte blanche)." },
+  2: { reponse: 0, labels: ["A. Vérifier que les fonctions du logiciel répondent aux exigences", "B. Modifier le code source", "C. Tester uniquement le matériel informatique", "D. Vérifier uniquement la couleur de l'interface"], explication: "Le test fonctionnel (souvent en boîte noire) valide que le système fait ce qu'il est censé faire selon le cahier des charges." },
+  3: { reponse: 0, labels: ["A. Vrai", "B. Faux"], explication: "C'est la définition même de la boîte noire : on teste l'interface et le comportement externe, sans voir le code." },
+  4: { reponse: 0, labels: ["A. Le fonctionnement d'une fonctionnalité", "B. La structure du code source", "C. La température du processeur", "D. La vitesse de connexion Internet"], explication: "C'est un test fonctionnel typique : on vérifie que le système réagit correctement à une entrée donnée (mot de passe erroné)." }
+};
+
+const answers = {};
+
+/* ============================================================================
+   GESTION DES CLICS
+   ============================================================================ */
+document.querySelectorAll('.option').forEach(el => {
+  el.addEventListener('click', () => {
+    const q = el.dataset.q;
+    const o = parseInt(el.dataset.o);
+    if (answers[q] !== undefined) return; // Déjà répondu
+
+    answers[q] = o;
+    const info = CORRECTIONS[q];
+    const isCorrect = o === info.reponse;
+
+    // Colorier les boutons
+    document.querySelectorAll(`.option[data-q="${q}"]`).forEach(opt => {
+      opt.style.cursor = 'default';
+      const oo = parseInt(opt.dataset.o);
+      if (oo === info.reponse) opt.classList.add('correct');
+      else if (oo === o && !isCorrect) opt.classList.add('wrong');
+    });
+
+    // Afficher l'explication
+    const fb = document.getElementById('feedback-' + q);
+    if (fb) {
+      fb.innerHTML = `
+        <span class="label ${isCorrect ? 'ok' : 'ko'}">
+          ${isCorrect ? '✓ Bonne réponse' : '✗ Réponse incorrecte'}
+        </span>
+        <p>${info.explication}</p>
+      `;
+      fb.classList.add('show');
+    }
+
+    updateProgress();
+  });
+});
+
+/* ============================================================================
+   PROGRESSION
+   ============================================================================ */
+function updateProgress() {
+  const done = Object.keys(answers).length;
+  const total = 4;
+  document.getElementById('progressCount').textContent = done + ' / ' + total;
+  document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+  
+  if (done === total) {
+    document.getElementById('sendBlock').style.display = 'block';
+    document.getElementById('sendBlock').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/* ============================================================================
+   ENVOI PAR EMAIL
+   ============================================================================ */
+function envoyerResultats() {
+  const nom = document.getElementById('studentName').value.trim();
+  const groupe = document.getElementById('studentGroup').value.trim();
+
+  if (!nom) {
+    alert('Renseignez votre nom avant d\'envoyer.');
+    document.getElementById('studentName').focus();
+    return;
+  }
+
+  let score = 0;
+  Object.keys(CORRECTIONS).forEach(q => {
+    if (answers[q] === CORRECTIONS[q].reponse) score++;
+  });
+
+  const L = [];
+  L.push('QUIZ — TESTS EN BOÎTE NOIRE');
+  L.push('École Schulz Genève · Unit 7');
+  L.push('');
+  L.push('Nom : ' + nom);
+  if (groupe) L.push('Groupe : ' + groupe);
+  L.push('Date : ' + new Date().toLocaleString('fr-FR'));
+  L.push('');
+  L.push('SCORE : ' + score + '/4');
+  L.push('');
+  L.push('DÉTAIL DES RÉPONSES');
+  
+  Object.keys(CORRECTIONS).forEach(q => {
+    const info = CORRECTIONS[q];
+    const c = answers[q];
+    const good = c === info.reponse;
+    L.push('');
+    L.push('Question ' + q + ' — ' + (good ? '[✓]' : '[✗]'));
+    L.push('  Donnée  : ' + (c !== undefined ? info.labels[c] : 'Non répondu'));
+    L.push('  Attendue: ' + info.labels[info.reponse]);
+  });
+
+  const sujet = '[QUIZ-BLACKBOX] ' + nom + ' · ' + score + '/4';
+  const corps = encodeURIComponent(L.join('\n'));
+  window.location.href = 'mailto:t.mbi@ecole-schulz.ch?subject=' + encodeURIComponent(sujet) + '&body=' + corps;
+}
+
+/* ============================================================================
+   RESET
+   ============================================================================ */
+function reset() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.querySelectorAll('.option').forEach(o => {
+    o.classList.remove('correct', 'wrong');
+    o.style.cursor = 'pointer';
+  });
+  document.querySelectorAll('.feedback').forEach(f => {
+    f.classList.remove('show');
+    f.innerHTML = '';
+  });
+  document.getElementById('sendBlock').style.display = 'none';
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+updateProgress();
+</script>
+
+</body>
+</html>
